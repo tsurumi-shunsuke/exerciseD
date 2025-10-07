@@ -1,0 +1,671 @@
+\documentclass[a4j,10pt]{jarticle}
+\usepackage[dvipdfm,text={160mm,240mm},centering]{geometry}
+\usepackage{newtxtext,newtxmath}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{listings,jvlisting}
+\usepackage{color}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+% 担当教員名
+\newcommand{\teacherName}{平井 健士}
+% 提出者名
+\newcommand{\studentName}{鶴見 俊介}
+% 提出者所属
+\newcommand{\studentAff}{基礎工学部 情報科学科3年 計算機科学コース}
+% 提出者学籍番号
+\newcommand{\studentID}{09B23057}
+% 提出者電子メールアドレス
+\newcommand{\studentEmail}{u299151f@ecs.osaka-u.ac.jp}
+% 課題提出日
+\newcommand{\submitted}{\today}
+% 課題締め切り日
+\newcommand{\deadline}{2025年8月4日13:00}
+
+\lstset{
+    basicstyle = {\ttfamily},
+    backgroundcolor  = {\color[gray]{.99}},
+    breaklines = true,
+    columns = [l]{fullflexible},
+    commentstyle = {\smallitshape},
+    frame = {tb},
+    identifierstyle = {\small},
+    keepspaces=true,
+    keywordstyle = {\small\bfseries},
+    lineskip = -0.5ex,
+    ndkeywordstyle = {\small},
+    numbers = left,
+    numbersep = 1zw,
+    numberstyle = {\scriptsize},
+    stepnumber = 1,
+    stringstyle = {\small\ttfamily},
+    xleftmargin = 3zw,
+    xrightmargin = 0zw
+}
+\renewcommand{\lstlistingname}{プログラム}
+
+\begin{document}
+\begin{titlepage}
+\begin{center}
+{\Huge\bfseries 情報科学演習C} \\
+\vspace{1cm}
+{\LARGE\bfseries 課題4}
+\vspace{5cm}
+
+{\large
+\begin{tabular}{rcl}
+担当教員 & : & \teacherName \\
+提出者   & : & \studentName \\
+所属/学年   & : & \studentAff\\
+学籍番号 & : & \studentID \\
+電子メール & : & \texttt{\studentEmail}\\
+&& \\
+提出日 & : & \submitted \\
+締切日 & : & \deadline
+\end{tabular}
+}
+\end{center}
+\end{titlepage}
+
+\setcounter{tocdepth}{2}
+\tableofcontents
+\newpage
+
+
+% \lstinputlisting[caption=サーバプログラムの接続手順, firstline=1, firstnumber=1, lastline=19, label=prog:server]{codes/server.txt}
+
+\section{課題4-1}
+\subsection{課題内容・仕様}
+指定されたプロトコル仕様にしたがって，サンプルプログラムと正しく通信できるようなチャットプログラムを作成する．
+あるクライアントは1つのサーバに接続することで，サーバに接続している他のクライアントと同時にチャットをすることができる．
+このとき，ポート番号は10140を使用し，同時にサーバに接続できるクライアント数は5である．
+クライアントプログラムは，「./chatclient （ホスト名）（ユーザ名）」のようにして実行する．
+ユーザ名は，ハイフン及びアンダースコアのみからなる文字列とする．
+\subsection{アルゴリズム・実装方法}
+\subsubsection{サーバプログラム}
+サーバプログラムは，以下のような状態によって構成されている．
+また，これらの状態の遷移をまとめると図\ref{fig:task4-1_server}のようになる．
+\begin{itemize}
+    \item S1：初期状態\\
+        reset\_client()関数によって，クライアント情報を格納するClient構造体を初期化する．
+        また，init\_listen\_socket()関数によって，接続待ち用のリッスンソケットを作成する．
+        初期設定が完了したら状態S2に遷移する．
+    \item S2：入力待ち\\
+        リッスンソケットlsockと各クライアントソケットClient.sockを，FD\_SET()によって読み込みの監視対象にする．
+        また，maxfdを更新する．
+        ソケットの設定が完了したらS3へ遷移する．
+    \item S3：入力処理\\
+        select()関数によって，入力を監視し適切な処理状態へ遷移する．
+        接続要求を受け付けた場合は状態S4へ，メッセージ配信要求を受け付けた場合は状態S6へ遷移する．
+    \item S4：参加受付\\
+        リッスンソケットが読み込み可能となると，新しい接続を受け付ける．
+        接続の受付はaccept\_connection()関数によって処理する．
+        接続が成功したら，状態S5へ遷移する．
+    \item S5：ユーザ名登録\\
+        handle\_client\_io()関数で，S4で接続が成功したクライアントのユーザ名を確認する．
+        このとき，ユーザ名が既に存在しているものである場合は，そのクライアントへ接続拒否のメッセージを送信し，そのクライアントとの接続を切断する．
+        ユーザ名が受理された場合は，クライアントの情報を格納する列挙型CStateを，ユーザ名受理待ちのWAIT\_USERからチャット可能のCHATへ変更し，状態S2に戻る．
+    \item S6：メッセージ配信\\
+        各クライアントソケットが読み込み可能となると，handle\_client\_io()関数でメッセージを読み取り，ユーザ名を先頭に着けた文字列を全クライアントへ送信する．
+        読み取った文字がEOFであるとき，そのクライアントの離脱処理をする状態S7へ遷移する．
+        そうでないときは，broadcast\_all()関数によって全クライアントソケットへメッセージを書き込む．
+        メッセージの送信が完了したら状態S2へ戻る．
+    \item S7：離脱処理\\
+        reset\_client()関数によって，クライアントとの接続を切断し，client構造体を初期化する．
+        処理が完了したら状態S2に戻る．
+\end{itemize}
+\begin{figure}[h]
+    \caption{サーバプログラムの状態遷移}
+    \centering
+    \label{fig:task4-1_server}
+    \includegraphics[width=160mm]{images/task4-1_server.pdf}
+\end{figure}
+
+このような処理を実現するために，以下のプログラム\ref{prog:task4-1_server_info}のような列挙型CStateと構造体Clientを使用する．
+CStateは，接続が完了したクライアントのユーザ名が受理されたかどうかを表し，ユーザ名が受理される前はWAIT\_USER，受理後はCHATとなる．
+これによって，handle\_client\_io()関数の処理が分岐する．
+
+また，Clientは，クライアントの情報を保存する構造体である．
+この構造体を参照してソケットやユーザ名を識別する．
+\lstinputlisting[caption=クライアント情報の保存方法, firstline=1, firstnumber=1, lastline=8, label=prog:task4-1_server_info]{codes/task4-1_server.txt}
+
+以下のプログラム\ref{prog:task4-1_server_main}は，サーバプログラムのメインループの部分である．
+簡単のために一部の宣言やエラー処理を省略してある．
+このプログラムによって，図\ref{fig:task4-1_server}のような状態遷移が実現されている．
+\lstinputlisting[caption=サーバプログラムのメインループ, firstline=10, firstnumber=1, lastline=30, label=prog:task4-1_server_main]{codes/task4-1_server.txt}
+
+
+以下の表\ref{tab:task4-1_server}に，このサーバプログラムにおいて主要な役割を担う関数について，それぞれの概要と処理内容を示す．
+これらの関数が呼ばれて処理が完了すると，それぞれ図\ref{fig:task4-1_server}にしたがって状態が遷移する．
+\begin{table}[htbp]
+  \centering
+  \caption{各関数の処理内容一覧}
+  \label{tab:task4-1_server}
+  \begin{tabular}{|l|p{3cm}|p{8cm}|}
+    \hline
+    \textbf{関数名} & \textbf{引数} & \textbf{処理内容} \\
+    \hline
+    \texttt{reset\_client} & \texttt{Client *c} &
+      クライアントのソケットを閉じ，構造体を初期状態にリセットする（未接続・空ユーザー名）． \\
+    \hline
+    \texttt{init\_listen\_socket} & なし &
+      サーバのリッスンソケットを作成する．ソケット生成，アドレス設定，bind()，listen()を行う． \\
+    \hline
+    \texttt{accept\_connection} & \texttt{int lsock, Client cl[]} &
+      accept()によって，新規クライアント接続を受け入れ，空いているスロットにソケットを登録．空きがなければ接続を拒否． \\
+    \hline
+    \texttt{handle\_client\_io} & \texttt{int idx, Client cl[]} &
+      クライアントからの入力を受信し，ユーザー名登録やチャットメッセージの中継処理を行う．1行ごとに処理． \\
+    \hline
+    \texttt{broadcast\_all} & \texttt{const char *msg, size\_t n, Client cl[]} &
+      全クライアントに対してメッセージを送信するブロードキャスト処理を行う． \\
+    \hline
+  \end{tabular}
+\end{table}
+
+特に複雑であるhandle\_client\_io() 関数は，指定されたクライアントからの入力を処理する関数であり，サーバプログラム全体において最も重要な役割を担っている．
+この関数では，まずクライアントソケットからデータを受信し，バッファに追記する．
+受信されたデータは改行文字までを1行として処理するようになっており，複数行を一度に受信した場合でも逐次的に処理できるようになっている．
+
+データが受信できなかった場合，すなわちクライアントが切断された場合には，そのクライアントに対して離脱処理を行い，構造体を初期化する．
+
+クライアントの状態が WAIT\_USER のときは，受信した1行をユーザ名として処理する．
+このとき，他のクライアントと同じユーザ名が存在していないかを確認する．
+重複していた場合は，そのクライアントに対して拒否メッセージを送信し，接続を切断する．
+ユーザ名が受理された場合には，そのユーザ名をクライアント構造体に記録し，状態を CHAT に変更する．
+
+クライアントの状態が CHAT のときは，受信した1行をチャットメッセージとして処理する．
+メッセージの先頭に送信者のユーザ名を付加した文字列を生成し，それを全クライアントに送信する．
+この送信処理は，broadcast\_all() 関数を用いて実現されている．
+
+各行の処理が完了するたびに，処理済みの部分をバッファから取り除くために前詰めを行い，次の行の受信と処理に備える．
+また，バッファが最大サイズに達しそうになった場合には，バッファをリセットして，システム全体が過負荷状態に陥るのを防止している．
+
+このように，handle\_client\_io() 関数は，ユーザ名登録とチャットメッセージ送信の両方を担当し，状態遷移とメッセージ管理の中核を担う構成となっている．
+
+\subsubsection{クライアントプログラム}
+クライアントプログラムは，以下のような状態によって実現することができる．
+また，これらの状態遷移をまとめると，図\ref{fig:task4-1_client}のようになる．
+
+\begin{itemize}
+  \item C1：初期状態\\
+    クライアントプログラムが仕様に従って実行されたかどうかチェックする．
+    クライアントプログラムは，「./chatclient （ホスト名）（ユーザ名）」という入力によって実行されなければならない．
+    また，ユーザ名に使用禁止の文字が含まれていなかどうかを，valid\_username()関数によってチェックする．
+    正しい入力でない場合はプログラムを終了し，問題がなければ状態C2へ遷移する．
+  \item C2：接続待ち\\
+    socket()関数によって通信用ソケットを作成し，connect()関数によってサーバへ接続要求を送る．
+    この要求が受理されて接続が確立されたらサーバから「REQUEST ACCEPTED」という文字列が送られてくるため，この文字列を受信したら状態C3へ遷移する．
+    一方，接続できなかった場合は「REQUEST REJECTED」という文字列が送られ，状態C6へ遷移する．
+  \item C3：ユーザ名登録待ち\\
+    クライアントのユーザ名がサーバに受理されるか確認する状態．
+    正しくユーザ名が登録された場合，サーバから「USERNAME REGISTERED」という文字列が送られてくるため，この文字列を受信したら状態C4へ遷移する．
+    一方，すでにサーバに登録されているユーザ名は登録することができないため，登録に失敗した場合はサーバから「USERNAME REJECTED」という文字列が送られてくる．
+    このとき，状態C6へ遷移する．
+  \item C4：メッセージ送受信\\
+    サーバと通信ができるようになったクライアントは，select()関数によって入力を監視する．
+    標準入力から文字列を受け取った場合は，ソケットにその文字列を書き込んでサーバに送信する．
+    ここで，この文字列がEOFであるときは状態C5へ遷移する．
+    一方，ソケットから文字列を受け取った場合は，その文字列を読み取って標準出力する．
+    この状態を繰り返すことで，サーバを経由して他のクライアントと会話することができる．
+  \item C5：離脱\\
+    ユーザからEOFを受け取った状態．
+    close()関数によってクライアントのソケットを閉じてプログラムを終了する．
+  \item C6：例外処理\\
+    何らかの原因によってサーバと通信できなかった状態．
+    close()関数によってクライアントのソケットを閉じてプログラムを終了する．    
+\end{itemize}
+\begin{figure}[h]
+    \caption{クライアントプログラムの状態遷移}
+    \centering
+    \label{fig:task4-1_client}
+    \includegraphics[width=150mm]{images/task4-1_client.pdf}
+\end{figure}
+
+この状態遷移を実現しているのは，以下のプログラム\ref{prog:task4-1_client}である．
+このプログラム\ref{prog:task4-1_client}は，エラー処理や変数の宣言などを省略して，大まかな状態遷移図\ref{fig:task4-1_client}の実装部分のみ記述している．
+通信の中心部分となるのは，whileのループ内である．
+whileループに入る前に，状態C1から状態C3の接続チェックを行い，whileループ内でselect()関数によってメッセージの送受信を実現していることがわかる．
+\newpage
+\lstinputlisting[caption=クライアントプログラム, firstline=9, firstnumber=1, lastline=44, label=prog:task4-1_client]{codes/task4-1_client.txt}
+
+このプログラムでは，以下のvalid\_username()関数を用いている．
+この関数では，入力されたユーザ名を表す文字列が，仕様に従ったものであるかどうかをチェックしている．
+\lstinputlisting[caption=valid\_username()関数, firstline=1, firstnumber=1, lastline=7, label=prog:task4-1_client_valid_username]{codes/task4-1_client.txt}
+\subsection{実行結果}
+各プログラムは，それぞれ用意されたサンプルプログラムと通信することによって動作確認する．
+まず，作成したサーバプログラムと用意されたクライアントプログラムを通信する．
+サーバプログラムで確認するべきポイントは次のように挙げられる．
+\begin{itemize}
+  \item クライアントプログラムが正しくメッセージの交換ができていること．
+  \item 重複したユーザ名は登録できないこと．
+  \item クライアントの離脱を受理できていること．
+  \item ユーザの同時接続数は5までであること．
+\end{itemize}
+
+以下の図\ref{fig:task4-1_ss}と図\ref{fig:task4-1_sc2},\ref{fig:task4-1_sc3},\ref{fig:task4-1_sc4}は，それぞれサーバとクライアントの通信画面である．
+図\ref{fig:task4-1_ss}から，通信状況が確認でき，図\ref{fig:task4-1_sc3}から正しくメッセージの交換ができていることがわかる．
+また，クライアントの離脱も確認できる．
+
+図\ref{fig:task4-1_sc2}からは，6つ目のクライアント「sample6」は接続が拒否され，図\ref{fig:task4-1_sc4}からは重複した名前「sample2」の登録を拒否していることが確認できる．
+
+\begin{figure}[h]
+    \caption{サーバプログラムの動作確認（サーバ画面）}
+    \centering
+    \label{fig:task4-1_ss}
+    \includegraphics[width=130mm]{images/chatserver1/task4-1_ss.png}
+\end{figure}
+\begin{figure}[h]
+    \caption{サーバプログラムの動作確認（サーバ画面1）}
+    \centering
+    \label{fig:task4-1_sc2}
+    \includegraphics[width=130mm]{images/chatserver1/task4-1_sc2.png}
+\end{figure}
+\begin{figure}[h]
+    \caption{サーバプログラムの動作確認（サーバ画面2）}
+    \centering
+    \label{fig:task4-1_sc3}
+    \includegraphics[width=130mm]{images/chatserver1/task4-1_sc3.png}
+\end{figure}
+\begin{figure}[h]
+    \caption{サーバプログラムの動作確認（サーバ画面3）}
+    \centering
+    \label{fig:task4-1_sc4}
+    \includegraphics[width=130mm]{images/chatserver1/task4-1_sc4.png}
+\end{figure}
+
+次に，作成したクライアントプログラムと用意されたサーバプログラムを通信する．
+クライアントプログラムで確認するべきポイントは次にように挙げられる．
+\begin{itemize}
+  \item 正しくメッセージの交換ができていること．
+  \item 接続失敗を確認できること．
+  \item ユーザ名の登録失敗を確認できること．
+  \item EOFによる離脱が可能であること．
+\end{itemize}
+
+
+
+
+以下の図\ref{fig:task4-1_cs}と図\ref{fig:task4-1_cc1},\ref{fig:task4-1_cc3}はそれぞれサーバとクライアントの通信画面である．
+図\ref{fig:task4-1_cc3}から，クライアント「chack2」は適切にメッセージの交換ができていて，図\ref{fig:task4-1_cs}から通信からの離脱もできていることがわかる．
+また，図\ref{fig:task4-1_cs},\ref{fig:task4-1_cc1}から，重複するユーザ名「check2」は登録が拒否されていることがわかる．
+
+図\ref{fig:task4-1_cc2}からは，6つ目のユーザ「check6」は接続の拒否を表示していることがわかる．
+これは，サーバが受け付けるクライアント数は5までという制限を反映できている結果といえる．
+
+\begin{figure}[h]
+    \caption{クライアントプログラムの動作確認（サーバ画面）}
+    \centering
+    \label{fig:task4-1_cs}
+    \includegraphics[width=130mm]{images/chatclient1/task4-1_cs.png}
+\end{figure}
+\newpage
+\begin{figure}[h]
+    \caption{クライアントプログラムの動作確認（クライアント画面1）}
+    \centering
+    \label{fig:task4-1_cc1}
+    \includegraphics[width=130mm]{images/chatclient1/task4-1_cc1.png}
+\end{figure}
+\begin{figure}[h]
+    \caption{クライアントプログラムの動作確認（クライアント画面2）}
+    \centering
+    \label{fig:task4-1_cc3}
+    \includegraphics[width=130mm]{images/chatclient1/task4-1_cc3.png}
+\end{figure}
+\begin{figure}[h]
+    \caption{クライアントプログラムの動作確認（クライアント画面3）}
+    \centering
+    \label{fig:task4-1_cc2}
+    \includegraphics[width=130mm]{images/chatclient1/task4-1_cc2.png}
+\end{figure}
+
+以上より，サーバプログラムとクライアントプログラムは，それぞれ適切に動作することができているといえる．
+
+\subsection{考察}
+本課題では，以前に実装した簡易チャットを拡張し，複数クライアント間で相互に通信できるチャットシステムを構築した．  
+メッセージは一度サーバに集約し，そこから全クライアントへブロードキャストする方式を採用したため，個々のクライアントはサーバとだけ通信すればよい．
+
+クライアント側の主な役割は，サーバとの接続確立とメッセージの送受信であり，基本構造は前課題とほぼ同一である．  
+追加・変更点はユーザ名登録の処理程度にとどまり，既存コードを大きく改修する必要はなかった．
+
+一方，サーバプログラムは複数ユーザを同時に扱う必要があるため大幅に複雑化した．  
+各クライアントのソケットやユーザ名を構造体にまとめて配列で管理し，select() により同時接続を監視することで，接続の追加・切断を効率良く処理できるようにした．  
+このユーザ管理機構に伴い，多数のシステムコール（accept，recv，send，close など）が増え，コード量と分岐は増加したが，責務ごとに関数を分割することで見通しを保てた．
+
+結果として，\texttt{main()} 関数における制御フローは前課題とほとんど変わらず，一貫性を維持できた．  
+今後さらなる機能追加を行う場合でも，同様に「データ構造の設計」と「関数レベルでの抽象化」を徹底すれば，可読性と拡張性を損なわずに開発を進められると考えられる．
+
+
+
+\section{課題4-2}
+\subsection{課題内容・仕様}
+課題4-1で作成したプログラムに，以下の機能を追加して拡張する．
+\begin{itemize}
+  \item 各発言の先頭に，発言時刻とホスト名を出力する．
+  \item 登録するユーザ名が重複した場合は，ユーザ名の再設定を求める．
+  \item 「\textbackslash list」と入力すると，その時点で登録している全ユーザ名を出力する．
+\end{itemize}
+
+\subsection{アルゴリズム・実装方法}
+\subsubsection{各発言の先頭に，発言時刻とホスト名を出力する機能}
+課題4-1では，各クライアントの発言の先頭にそのクライアント名を表示する仕組みになっていた．
+そのようにするために，サーバプログラムはクライアントから受け取った文字列の先頭にそのクライアント名を結合して新たな文字列を作成し，全クライアントにこの文字列を送信していた．
+このような方法で各発言の先頭に情報を追加することができる．
+つまり，サーバプログラムのhandle\_client\_io()関数を拡張してこの機能を実現する．
+
+以下のプログラム\ref{prog:task4-2_server_time}は，この機能を実現するためにhandle\_client\_io()関数に追加した内容である．
+まず最初に，現在時刻を取得する．
+時刻の取得には，C標準ライブラリの$<$time.h$>$に含まれているtime()関数とlocaltime()関数を利用する．
+これによって得られた時刻の情報を，strftime()関数によってフォーマットを整えてtimebuf配列に格納する．
+次に，ホスト名を取得する．
+ホスト名はgethostname()関数によってhostname配列に格納しておく．
+最後に，クライアントへ送信するメッセージの先頭に結合するヘッダ部分をまとめる．
+ヘッダが「[時刻] [ホスト名] ユーザ名 $>$」という文字列になるように，snprintf()関数でout配列に格納する．
+snprintf()関数は，実際に書き込んだバイト数を返すため，この数値をhdrに保存して，後で本文をコピーするときのオフセットにする．
+本文はc-$>$bufによって得られるため，この内容をoutのhdr以降にコピーすることで全クライアントに送信する文字列が完成する．
+この文字列は，課題4-1と同様にbroadcast\_all()関数で送信される．
+
+
+\lstinputlisting[caption=発言時刻とホスト名の取得・出力, firstline=15, firstnumber=1, lastline=33, label=prog:task4-2_server_time]{codes/task4-2_server.txt}
+
+
+\subsubsection{ユーザ名の再設定を求める機能}
+前章でのプログラムでは，クライアントプログラムの実行時にクライアント名を入力させて，そのクライアント名が登録できなかったときはプログラムを終了していた．
+ここでは，その機能を拡張して，登録できなかった場合はユーザに再入力を求める．
+そのためには，クライアントプログラムを変更する必要がある．
+
+クライアントプログラムは，接続が完了したサーバから「USERNAME REGISTERED」という文字列を受け取ることでクライアント名の登録が完了したと認識する．
+一方，サーバから「USERNAME REJECTED」という文字列を受け取ることで登録失敗と判断する．
+この「USERNAME REGISTERED」を受け取るまで，クライアント名の入力とサーバへの送信を繰り返すことで，ユーザに再設定の機会を与えることができる．
+
+以下のプログラム\ref{prog:task4-2_client}は，この機能を実現するために追加したクライアントプログラムのコードである．
+簡単のために，実際に必要な宣言やエラー処理は省略している．
+クライアントプログラムは，unameに保存されたクライアント名の文字列をサーバへ送信し，サーバが「USERNAME REGISTERED」か「USERNAME REJECTED」のどちらを返すかで次の動作を決定する．
+「USERNAME REGISTERED」の場合は，名前の登録が完了したといえるから，このループを抜ける．
+逆に「USERNAME REJECTED」の場合は，「user name already in use. please enter another: 」という文字列を出力してユーザに名前の再入力を促し，fgets()関数で標準入力から文字列を取得する．
+この文字列から改行文字を削除し，さらにvalid\_username()関数（表\ref{tab:task4-1_server}）で不適切な文字がないことを確認してunameに保存する．
+そしてループをして，サーバにもう一度unameの文字列を送信する．
+このようにサーバが「USERNAME REGISTERED」を送信するまでwhileループを継続する．
+
+\lstinputlisting[caption=ユーザ名の再設定, firstline=1, firstnumber=1, lastline=24, label=prog:task4-2_client]{codes/task4-2_client.txt}
+
+\subsubsection{登録している全ユーザ名を出力する機能}
+サーバはクライアントから入力を受け取って，クライアント全員にその入力文字列を送信することで会話機能を実現しているが，
+この入力文字列が「\textbackslash list」であるとき，サーバプログラムはこの文字列を返すのではなく，登録クライアント名を取り出してそのクライアントに送信することで，この機能を実現する．
+前章で説明した通り，サーバプログラムのhandle\_client\_io()関数が文字列の入出力の役割を果たしているため，この関数を拡張する．
+
+以下のプログラム\ref{prog:task4-2_server_list}は，その拡張部分である．
+ここでは，登録クライアントから受け取った文字列が「\textbackslash list」であることを確認したら，配列listbufに各クライアントの名前を追加していく．
+クライアントの名前はcl構造体に保存されているため，順に取り出してstrncat()関数でlistbufに追加していく．
+同時に，各クライアントを追加したら改行文字も追加して，出力するときの体裁を整える．
+このようにして準備された送信文字列listbufを，write()関数によって「\textbackslash list」を入力したクライアントのみに送信することで，この機能を実現することができる．
+
+
+\lstinputlisting[caption=ユーザリストの出力, firstline=1, firstnumber=1, lastline=13, label=prog:task4-2_server_list]{codes/task4-2_server.txt}
+
+\subsection{実行結果}
+以下の図\ref{fig:task4-2}は，課題4-2のプログラムの実行画面である．
+ここでは，test1というユーザ名で登録しようとしたとき，すでにtest1というユーザが存在していたため，ユーザ名の再登録を求められている．
+そこで，test2というユーザ名を入力することでサーバとの接続が完了していることがわかる．
+また，各発言の先頭には，時刻・ホスト名・ユーザ名が出力されており，「\textbackslash list」と入力するとユーザ名の一覧が表示されていることがわかる．
+以上より，拡張機能は正しく実現されているといえる．
+
+\begin{figure}[h]
+    \caption{課題4-2のクライアントプログラム実行画面}
+    \centering
+    \label{fig:task4-2}
+    \includegraphics[width=150mm]{images/task4-2.png}
+\end{figure}
+
+\subsection{考察}
+本課題では，チャットシステムに
+\begin{itemize}
+  \item 発言ヘッダ（時刻・ホスト名・ユーザ名）の自動付与
+  \item ユーザ名重複時の再入力要求
+  \item \textbackslash list コマンドによる登録ユーザ一覧表示
+\end{itemize}
+を実装した．
+
+発言ヘッダ生成では \texttt{snprintf()} とバッファ長チェックによりバッファオーバフローを抑止できた．
+ただしマルチバイト文字が切り詰められる可能性が残るため，将来的には UTF‑8 端点を考慮したコピー関数の導入が望ましい．
+
+ユーザ名重複検査と \textbackslash list コマンドは，既存の \texttt{handle\_client\_io()} 内に最小限の分岐を追加するだけで実現でき，コード全体のスケーラビリティを保てた．
+重複検査は線形走査で十分だが，接続数が増える場合はハッシュテーブル化による $O(1)$ 探索への置換が有効である．
+
+以上より，要求された機能は正しく動作し，コードベースへの影響も限定的であった．
+今後は
+\begin{itemize}
+  \item 文字コード境界の安全な処理
+  \item \texttt{select()} から \texttt{poll()}／\texttt{epoll()} への移行によるスケーラビリティ向上
+  \item メッセージ履歴の保持と再送機能
+\end{itemize}
+を検討することで，より実用的なチャットシステムへ発展できる．
+
+
+
+\section{発展課題}
+\subsection{課題内容・仕様}
+pythonを用いて，サーバプログラムとクライアントプログラムによる，複数クライアントのチャット機能を実現する．
+通信はスレッドを用いた実装であり，TCP通信である．
+この通信における仕様は以下の通りである．
+\begin{itemize}
+  \item 起動しているサーバプログラムにクライアントプログラムがアクセスする．
+  \item 接続先のIPアドレス（ホスト名）とポート番号は，それぞれのコード内で指定する．
+    ここでは，ホストは'localhost'，ポート番号は12345としている．
+  \item 同時に接続できるクライアント数は，サーバプログラムのグローバル変数で指定する．
+    ここでは，最大接続数を3としている．
+  \item クライアントは，プログラム実行後にクライアント名を入力する．
+  \item 各クライアントは，ターミナルから接続しているすべてのクライアントへメッセージを送信することができる．
+    また，ターミナルでメッセージ送信者名とメッセージ内容を確認することができる．
+  \item サーバとクライアントはともにCtrl+Cでプログラムを終了する．
+    ただし，サーバが終了したらクライアントも連動して終了する．
+\end{itemize}
+
+\subsection{アルゴリズム・実装方法}
+\subsubsection{サーバプログラム}
+サーバプログラムは，以下の図\ref{fig:task4-advance-server-state}のような状態遷移によって構成されている．
+まず，サーバはソケットを作成し（socket），そのソケットにIPアドレスとポート番号を紐づけ（bind），ソケットにクライアントからの接続要求が届くのを監視する（listen）．
+接続要求が届いたら，その接続要求を受け入れてクライアントとの接続を確立するが（accept），クライアント定員数の上限に達しているときは，クライアントへ\lstinline|FULL_MSG|を送信し，そのクライアントとの通信を切断する（close）．
+定員数未満の場合，\lstinline|NOT_FULL_MSG|を送信して，クライアントへ接続が成功したことを伝える．
+
+これは，課題4-1で作成したC言語によるサーバプログラムとほとんど同じ手順であるが，TCP通信の接続手順はプログラム言語によって変わらないため，その結果を表しているといえる．
+
+また，メッセージの送信は，受信した文字列を保存してある各クライアント通信用ソケットに送信することでブロードキャスト型の通信を実現している．
+
+\begin{figure}[h]
+    \caption{発展課題のサーバプログラムの状態遷移}
+    \centering
+    \label{fig:task4-advance-server-state}
+    \includegraphics[width=150mm]{images/task4-advance-server-state.pdf}
+\end{figure}
+
+以上のように，実装したプログラムの大枠は他の課題と同じであるが，これまでに行った課題と異なる点が次のように2つ挙げられる．
+\begin{enumerate}
+  \item \textbf{スレッドによる通信}\\
+        サーバプログラムでは，\lstinline|handle_client()| 関数が各クライアントソケットとの入出力を担当する．  
+        クライアントの数だけ同時にこの関数を実行する必要があるため，接続を受け付けるたびに1 本のスレッドを生成し（図 \ref{fig:task4-advance-server-thread}），メインスレッドと役割を分担して並行処理を行う．  
+        スレッドは，以下のプログラム\ref{prog:task4-advance-server-thread}のようにして生成する．
+        \begin{lstlisting}[language=Python,caption={クライアント用スレッドの生成}, label=prog:task4-advance-server-thread]
+threading.Thread(
+    target=handle_client,
+    args=(conn, addr),
+    daemon=True   
+).start()
+\end{lstlisting}
+        スレッド間で共有する \lstinline|clients| リストへのアクセスは
+        \lstinline|threading.Lock| で排他制御し，競合状態やデッドロックの発生を防いでいる．  
+        クライアントが切断されると，それに対応するスレッドも自動的に終了するため，
+        「接続状況」と「スレッドの生存期間」が 1 対 1 で対応する．
+        \begin{figure}[h]
+          \caption{発展課題のサーバプログラムのスレッド}
+          \centering
+          \label{fig:task4-advance-server-thread}
+          \includegraphics[width=90mm]{images/task4-advance-server-thread.pdf}
+        \end{figure}
+
+  \item \textbf{Ctrl\,+C（SIGINT）による終了処理}\\
+        メインスレッドでは \lstinline|signal.signal(SIGINT, sigint_handler)| により Ctrl\,+C 押下時に \lstinline|sigint_handler| が呼び出され，グローバルな \lstinline|stop| イベントをセットする（プログラム \ref{prog:sig-handler}）．
+
+\begin{lstlisting}[language=Python,caption={SIGINTハンドラの登録},label=prog:sig-handler]
+import signal
+stop = threading.Event()
+
+def sigint_handler(signum, frame):
+    stop.set()
+
+signal.signal(signal.SIGINT, sigint_handler)
+\end{lstlisting}
+
+        メインループは \lstinline|stop.is_set()| を監視しており，イベントが立つとソケットの \texttt{accept()} 待機を抜けて \lstinline|shutdown()| を実行する（プログラム \ref{prog:main-loop}）．
+
+\begin{lstlisting}[language=Python,caption={停止判定付きメインループ},label=prog:main-loop]
+while not stop.is_set():
+    try:
+        conn, addr = server_sock.accept()
+    except OSError:
+        break
+    threading.Thread(
+        target=handle_client,
+        args=(conn, addr),
+        daemon=True
+    ).start()
+shutdown()
+\end{lstlisting}
+
+        \lstinline|shutdown()| は
+        \begin{enumerate}
+          \item リスニングソケットをクローズする，
+          \item すべてのクライアントに \lstinline|SERVER_SHUTDOWN| を送信する，
+          \item 各クライアントソケットをクローズする，
+        \end{enumerate}
+        という手順で安全にサーバを停止させる．  
+        すべてのクライアントスレッドはデーモンスレッドとして生成しているため，メインスレッドが終了すると残存スレッドも自動的に終了し，プロセスが確実に終了する．
+\end{enumerate}
+
+
+
+\subsubsection{クライアントプログラム}
+クライアントプログラムは，サーバプログラムと同じく，課題4-1のクライアントプログラムとほぼ同様の接続手順によってサーバとの通信を確立する．
+まず，クライアントはソケットを作成し(socket)，サーバへ接続要求を送信する(connect)．
+その接続要求が受理されたら，クライアントはサーバから，接続クライアント数が定員未満の場合は\lstinline|NOT_FULL_MSG|を，定員数に達している場合は\lstinline|FULL_MSG|を受信する．
+\lstinline|FULL_MSG|を受信した場合は，接続を継続することができないため，ソケットを閉じて(close)プログラムを終了する．
+\lstinline|NOT_FULL_MSG|を受信した場合は，接続が完了したとしてユーザから名前を取得し，クライアントとメッセージの交換ができる状態になる．
+なお，どの状態においても\lstinline|Ctrl+C|の入力を検知して，サーバとの通信を切断してプログラムを終了する．
+また，サーバプログラムが終了された場合はサーバから\lstinline|SHUTDOWN_MSG|を受信してプログラムを終了する．
+以上の流れをまとめたものが以下の図\ref{fig:task4-advance-client-state}である．
+
+\begin{figure}[h]
+    \caption{発展課題のクライアントプログラムの状態遷移}
+    \centering
+    \label{fig:task4-advance-client-state}
+    \includegraphics[width=150mm]{images/task4-advance-client-state.pdf}
+\end{figure}
+
+サーバプログラムと同様に，クライアントプログラムもスレッドとシグナルハンドラによる制御を行っている．
+
+チャット機能を実現するためには，クライアントプログラムは，ユーザからの入力とソケットからの入力（サーバからの受信）を同時に監視する必要がある．
+しかし，ユーザからの入力を待つこととソケットからの入力を待つことは，ともにブロッキング処理でありプログラム全体の動作を止めてしまう．
+したがって，それぞれが独立で処理を行えるようにするために，送信用スレッドと受信用スレッドが必要になる．
+これらのスレッドは，サーバとの接続が完了し，他クライアントと通信ができる状態になったときにそれぞれ１つずつ作成される．
+つまり，クライアントはメインスレッド，送信用スレッド，受信スレッドの3つのスレッドによって動作することになる．
+これらのスレッドの動作の様子を表したものが図\ref{fig:task4-advance-client-thread}である．
+
+また，\lstinline|Ctrl+C|のシグナルによってクライアントプログラムは終了する．
+制御方法はサーバプログラムと同じであり，\lstinline|stop = threading.Event()|で定義した\lstinline|stop|を制御するシグナルハンドラ\lstinline|sigint_handler()|によって実現する．
+各スレッドは常にこの\lstinline|stop|を監視し，どの状態でもプログラムを終了できる．
+
+
+\begin{figure}[h]
+    \caption{発展課題のクライアントプログラムのスレッド}
+    \centering
+    \label{fig:task4-advance-client-thread}
+    \includegraphics[width=90mm]{images/task4-advance-client-thread.pdf}
+\end{figure}
+
+
+
+\subsection{実行結果}
+以下の図\ref{fig:task4-advance-1}は，サーバプログラムとクライアントプログラムを起動して実際に通信したときの動作画面である．
+この図から，3人のクライアントが適切にメッセージ交換できていることがわかる．
+さらに，クライアントBobはCtrl+Cで接続を切断できていることもわかる．
+
+さらに，以下の図\ref{fig:task4-advance-2}はクライアント数が上限に達しているときに，新たに接続要求を送信したときの動作画面である．
+この図から，接続数が上限に達しているためにサーバ側から接続を遮断されて，クライアントプログラムが正常に終了していることがわかる．
+
+以上より，これらのプログラムは仕様を満たして正しく動作しているといえる．
+\begin{figure}[h]
+    \caption{発展課題の実行画面1}
+    \centering
+    \label{fig:task4-advance-1}
+    \includegraphics[width=160mm]{images/task4-advance-1.png}
+\end{figure}
+
+\begin{figure}[h]
+    \caption{発展課題の実行画面2}
+    \centering
+    \label{fig:task4-advance-2}
+    \includegraphics[width=80mm]{images/task4-advance-2.png}
+\end{figure}
+
+\subsection{考察}
+
+本実装では，ブロッキング I/O をスレッド分散で隠蔽し，停止はシグナル+イベントで一括制御するという構成をとった．
+その結果，以下の 3 点で所期の目標「少人数の双方向チャットを簡潔なコードで実装し，いつでも安全に終了できること」を満たせたと評価できる．
+
+\begin{itemize}
+  \item \textbf{応答性の向上}\\
+        各クライアントを専用スレッドで処理したことで，入力待ち・送信待ちが他クライアントに波及せず，3台同時接続でも体感遅延は無視できるレベルだった．
+  \item \textbf{停止動作の一貫性}\\
+        \lstinline|stop| を全スレッドが監視する方式を採用したため，サーバ側・クライアント側いずれの \texttt{Ctrl+\,C} でもソケットが確実に閉じられ，ゾンビスレッドが残らなかった．
+  \item \textbf{実装コストの削減}\\
+        Python 標準ライブラリだけで完結し，GUI や非同期フレームワークを導入せずに並行処理とブロードキャストを実現できた．
+\end{itemize}
+
+一方で，スレッド方式ゆえに接続数が増えるほどスレッドが線形に増えるというスケーラビリティの課題が残る．
+現状の最大接続数 3 では問題ないが，10～100 台規模を想定する場合は
+
+\begin{enumerate}
+  \item \textbf{スレッドプール}：あらかじめワーカを固定数用意し，\lstinline|queue.Queue| 経由でソケットを割り振る，
+  \item \textbf{ノンブロッキング I/O}：\lstinline|selectors| や\lstinline|asyncio| を用いて単一スレッドで多重化する，
+\end{enumerate}
+などのアプローチが有効と考えられる．
+
+さらにセキュリティと信頼性の観点では，
+
+\begin{itemize}
+  \item \textbf{TLS 通信}（\lstinline|ssl| モジュール）による暗号化
+  \item \textbf{メッセージ整形}（JSON/BSON）と\textbf{署名検証} による改ざん検出，
+  \item \textbf{ユーザ名重複チェック}・\textbf{タイムスタンプ付与}・\textbf{ログ保存} の自動化
+\end{itemize}
+といった機能を追加すれば，実運用にも耐えるチャットシステムへ発展できるだろう．
+
+最後に，今回の Python 版と課題4-1の C 版を比較すると，マルチスレッドの実装容易性とコード量の面で「高水準言語＋豊富な標準ライブラリ」の優位性が際立った．
+特に
+\begin{itemize}
+  \item \lstinline|threading.Thread| による関数１行スレッド生成
+  \item \lstinline|signal.signal| がマルチスレッド環境でもほぼそのまま使える簡潔さ
+\end{itemize}
+は C 言語に比べて学習・保守コストを大幅に低減する．
+一方で，低レベル制御（メモリ管理，Epoll／Kqueue 直接操作）や性能チューニングでは C の優位は揺るがず，目的と規模に応じて言語を選択すべきだと再認識した．
+
+
+\section{感想}
+本レポートでは，C 言語による select ベースのチャットシステム（課題4-1）を出発点として，Python 版のスレッド型サーバ／クライアント（発展課題）まで段階的に実装した．  
+従来は「ネットワークプログラミング＝難解」という印象が強かったが，\texttt{socket}・\texttt{threading}・\texttt{signal} といった標準ライブラリだけで意外なほど短いコードに収まることを体験でき，言語抽象度の違いを実感した．
+
+実装中に最も苦労したのは「ブロッキング I/O の扱い」と「安全な終了処理」の両立である．  
+最初はスレッド間でソケットを共有した結果，終了シーケンスで \texttt{OSError: Bad file descriptor} が頻発したが，\texttt{threading.Event} を全スレッドで監視し，最後に \texttt{shutdown()} で一括クローズする方式に統一してからは再現しなくなった．  
+
+一方で，スレッド数が接続数に比例する現在の設計は大規模同時接続には不向きであることも確認できた．  
+今後は
+\begin{itemize}
+  \item \texttt{selectors}／\texttt{asyncio} によるノンブロッキング I/O への移行
+  \item TLS 化と JSON メッセージ化による安全性・拡張性の向上
+  \item Docker 上での自動テスト環境整備
+\end{itemize}
+などを試み，より実用的なアプリケーションへ発展させたい．
+
+最後に，低レイヤを意識しながらも高水準言語の恩恵を受けられる「ちょうどよい抽象度」の設計方針を体得できたことが本演習最大の成果だと感じている．
+
+\end{document}
