@@ -1,0 +1,85 @@
+\documentclass[a4j,10pt]{jarticle}
+\usepackage[dvipdfm,text={160mm,240mm},centering]{geometry}
+\usepackage{newtxtext,newtxmath}
+\usepackage[dvipdfmx]{graphicx}
+\usepackage{listings,jvlisting}
+\usepackage{color}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+% 担当教員名
+\newcommand{\teacherName}{桝井 晃基}
+% 提出者名
+\newcommand{\studentName}{鶴見 俊介}
+% 提出者所属
+\newcommand{\studentAff}{基礎工学部 情報科学科3年 計算機科学コース}
+% 提出者学籍番号
+\newcommand{\studentID}{09B23057}
+% 提出者電子メールアドレス
+\newcommand{\studentEmail}{u299151f@ecs.osaka-u.ac.jp}
+% 課題提出日
+\newcommand{\submitted}{\today}
+% 課題締め切り日
+\newcommand{\deadline}{2025年10月17日}
+
+\lstset{
+    basicstyle = {\ttfamily},
+    backgroundcolor  = {\color[gray]{.99}},
+    breaklines = true,
+    columns = [l]{fullflexible},
+    commentstyle = {\smallitshape},
+    frame = {tb},
+    identifierstyle = {\small},
+    keepspaces=true,
+    keywordstyle = {\small\bfseries},
+    lineskip = -0.5ex,
+    ndkeywordstyle = {\small},
+    numbers = left,
+    numbersep = 1zw,
+    numberstyle = {\scriptsize},
+    stepnumber = 1,
+    stringstyle = {\small\ttfamily},
+    xleftmargin = 3zw,
+    xrightmargin = 0zw
+}
+\renewcommand{\lstlistingname}{プログラム}
+
+\begin{document}
+\begin{titlepage}
+\begin{center}
+{\Huge\bfseries 情報科学演習D} \\
+\vspace{1cm}
+{\LARGE\bfseries 課題1}
+\vspace{5cm}
+
+{\large
+\begin{tabular}{rcl}
+担当教員 & : & \teacherName \\
+提出者   & : & \studentName \\
+所属/学年   & : & \studentAff\\
+学籍番号 & : & \studentID \\
+電子メール & : & \texttt{\studentEmail}\\
+&& \\
+提出日 & : & \submitted \\
+締切日 & : & \deadline
+\end{tabular}
+}
+\end{center}
+\end{titlepage}
+
+\setcounter{tocdepth}{2}
+% \tableofcontents
+\newpage
+
+% \lstinputlisting[caption=サーバプログラムの接続手順, firstline=1, firstnumber=1, lastline=19, label=prog:server]{codes/server.txt}
+
+
+\section{システムの仕様}
+\section{課題達成の方針と設計}
+\section{実装プログラム}
+\section{考察や工夫点}
+\section{感想}
+
+
+\end{document}
