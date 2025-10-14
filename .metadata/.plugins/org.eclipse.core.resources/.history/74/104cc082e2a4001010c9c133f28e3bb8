@@ -1,0 +1,60 @@
+package enshud.s1.lexer;
+
+import java.util.*;
+
+final class LexerCore {
+	private LexerCore() {}
+	
+    private static final Map<String, String> KEYWORD_KIND = new HashMap<>();
+    private static final Map<String, String> SYMBOL_KIND  = new LinkedHashMap<>();
+
+    static {
+        KEYWORD_KIND.put("and","SAND");
+        KEYWORD_KIND.put("array","SARRAY");
+        KEYWORD_KIND.put("begin","SBEGIN");
+        KEYWORD_KIND.put("boolean","SBOOLEAN");
+        KEYWORD_KIND.put("char","SCHAR");
+        KEYWORD_KIND.put("div","SDIVD");
+        KEYWORD_KIND.put("do","SDO");
+        KEYWORD_KIND.put("else","SELSE");
+        KEYWORD_KIND.put("end","SEND");
+        KEYWORD_KIND.put("false","SFALSE");
+        KEYWORD_KIND.put("if","SIF");
+        KEYWORD_KIND.put("integer","SINTEGER");
+        KEYWORD_KIND.put("mod","SMOD");
+        KEYWORD_KIND.put("not","SNOT");
+        KEYWORD_KIND.put("of","SOF");
+        KEYWORD_KIND.put("or","SOR");
+        KEYWORD_KIND.put("procedure","SPROCEDURE");
+        KEYWORD_KIND.put("program","SPROGRAM");
+        KEYWORD_KIND.put("readln","SREADLN");
+        KEYWORD_KIND.put("then","STHEN");
+        KEYWORD_KIND.put("true","STRUE");
+        KEYWORD_KIND.put("var","SVAR");
+        KEYWORD_KIND.put("while","SWHILE");
+        KEYWORD_KIND.put("writeln","SWRITELN");
+
+        SYMBOL_KIND.put(":=","SASSIGN");
+        SYMBOL_KIND.put("<=","SLESSEQUAL");
+        SYMBOL_KIND.put(">=","SGREATEQUAL");
+        SYMBOL_KIND.put("<>","SNOTEQUAL");
+        SYMBOL_KIND.put("..","SRANGE");
+        SYMBOL_KIND.put("=","SEQUAL");
+        SYMBOL_KIND.put("<","SLESS");
+        SYMBOL_KIND.put(">","SGREAT");
+        SYMBOL_KIND.put("+","SPLUS");
+        SYMBOL_KIND.put("-","SMINUS");
+        SYMBOL_KIND.put("*","SSTAR");
+        SYMBOL_KIND.put("(" ,"SLPAREN");
+        SYMBOL_KIND.put(")" ,"SRPAREN");
+        SYMBOL_KIND.put("[" ,"SLBRACKET");
+        SYMBOL_KIND.put("]" ,"SRBRACKET");
+        SYMBOL_KIND.put(";" ,"SSEMICOLON");
+        SYMBOL_KIND.put(":" ,"SCOLON");
+        SYMBOL_KIND.put("," ,"SCOMMA");
+        SYMBOL_KIND.put("." ,"SDOT");
+        SYMBOL_KIND.put("/" ,"SDIVD");
+    }
+    
+    
+}

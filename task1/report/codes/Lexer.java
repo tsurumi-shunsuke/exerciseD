@@ -1,0 +1,53 @@
+package enshud.s1.lexer;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.*;
+
+public class Lexer {
+	
+	public static void main(final String[] args) {
+		System.out.println(new Lexer().run("data/pas/normal01.pas", "tmp/out1.ts"));
+		System.out.println(new Lexer().run("data/pas/normal02.pas", "tmp/out2.ts"));
+		System.out.println(new Lexer().run("data/pas/normal03.pas", "tmp/out3.ts"));
+	}
+
+	/**
+	 * 第一引数で指定されたpasファイルを読み込み，トークン列に分割する．
+	 * トークン列は第二引数で指定されたtsファイルに書き出すこと．
+	 * 正常に処理が終了した場合は"OK"を，入力ファイルが見つからない場合は"File not found"を返す．
+	 * 
+	 * @param inputFileName 入力pasファイル名
+	 * @param outputFileName 出力tsファイル名
+	 */
+	public String run(final String inputFileName, final String outputFileName) {
+        final Path in = Paths.get(inputFileName);
+        if (!Files.exists(in)) return "File not found";
+        
+        final Path out = Paths.get(outputFileName);
+
+        try {
+            // 出力ディレクトリを必要なら作成
+            Path parent = out.getParent();
+            if (parent != null && !Files.exists(parent)) Files.createDirectories(parent);
+            
+            // 入力ファイルから全もj列を取得
+            String rawText = Files.readString(in, StandardCharsets.UTF_8);
+            Tokenizer tz = new Tokenizer(rawText);
+            
+            // 出力ファイルへ書き込み
+            try (BufferedWriter bw = Files.newBufferedWriter(out, StandardCharsets.UTF_8)) {
+                for (Token tk; (tk = tz.nextToken()) != null; ) {
+                	// トークン，トークン名，トークンID，行番号
+                    bw.write(tk.name + "\t" + tk.type + "\t" + tk.id + "\t" + tz.tokenLine());
+                    bw.newLine();
+                }
+            }
+            
+        	return "OK";
+        } catch (IOException e) {
+        	return "File not found";
+        }
+	}
+}

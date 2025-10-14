@@ -1,0 +1,3 @@
+package enshud.s1.lexer;
+
+public record Token(String lexeme, String kindName, int id, int line) {}

@@ -1,0 +1,38 @@
+package enshud.s0.trial;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public class Trial {
+
+    public static void main(final String[] args) {
+        System.out.println(new Trial().run("data/pas/normal01.pas"));
+        System.out.println(new Trial().run("data/pas/normal02.pas"));
+        System.out.println(new Trial().run("data/pas/normal03.pas"));
+        System.out.println(new Trial().run("data/pas/normalXX.pas"));
+    }
+
+    /**
+     * 第一引数で指定されたpascalファイルを読み込み，ファイル行数を文字列として返す．
+     * 入力ファイルが見つからない場合は"File not found"を返す．
+     */
+    public String run(final String inputFileName) {
+        final Path path = Paths.get(inputFileName);
+
+        if (!Files.exists(path)) {
+            return "File not found";
+        }
+
+        try (BufferedReader br = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
+            long count = br.lines().count();
+            return Long.toString(count);
+        } catch (IOException e) {
+            // 仕様上は「見つからない場合のみ」だが、I/Oエラー時も同様に扱う
+            return "File not found";
+        }
+    }
+}

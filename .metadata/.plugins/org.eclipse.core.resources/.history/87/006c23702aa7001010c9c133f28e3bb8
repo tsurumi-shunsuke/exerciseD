@@ -1,0 +1,19 @@
+package enshud.s1.lexer;
+
+public class Token {
+	int id;
+	String type;
+	String name;
+	
+	public Token(final String name) {
+		this.name = name;
+		switch (name) {
+			case "and":
+				this.type = "SAND";
+				this.id = 0;
+			case "array":
+				this.type = "SARRAY";
+				this.id = 1;
+		}
+	}
+}

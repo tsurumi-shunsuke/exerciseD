@@ -1,0 +1,63 @@
+package enshud.s1.lexer;
+
+import java.util.*;
+
+final class LexerCore {
+    private LexerCore() {}
+
+    // 予約語（小文字）→ TokenKind
+    static final Map<String, TokenKind> KEYWORDS = new HashMap<>();
+    // 記号（先に二文字、次に一文字を定義すると見通し良い）→ TokenKind
+    static final Map<String, TokenKind> SYMBOLS  = new LinkedHashMap<>();
+
+    static {
+        // keywords
+        KEYWORDS.put("and", TokenKind.SAND);
+        KEYWORDS.put("array", TokenKind.SARRAY);
+        KEYWORDS.put("begin", TokenKind.SBEGIN);
+        KEYWORDS.put("boolean", TokenKind.SBOOLEAN);
+        KEYWORDS.put("char", TokenKind.SCHAR);
+        KEYWORDS.put("div", TokenKind.SDIVD);   // div も / も SDIVD にする
+        KEYWORDS.put("do", TokenKind.SDO);
+        KEYWORDS.put("else", TokenKind.SELSE);
+        KEYWORDS.put("end", TokenKind.SEND);
+        KEYWORDS.put("false", TokenKind.SFALSE);
+        KEYWORDS.put("if", TokenKind.SIF);
+        KEYWORDS.put("integer", TokenKind.SINTEGER);
+        KEYWORDS.put("mod", TokenKind.SMOD);
+        KEYWORDS.put("not", TokenKind.SNOT);
+        KEYWORDS.put("of", TokenKind.SOF);
+        KEYWORDS.put("or", TokenKind.SOR);
+        KEYWORDS.put("procedure", TokenKind.SPROCEDURE);
+        KEYWORDS.put("program", TokenKind.SPROGRAM);
+        KEYWORDS.put("readln", TokenKind.SREADLN);
+        KEYWORDS.put("then", TokenKind.STHEN);
+        KEYWORDS.put("true", TokenKind.STRUE);
+        KEYWORDS.put("var", TokenKind.SVAR);
+        KEYWORDS.put("while", TokenKind.SWHILE);
+        KEYWORDS.put("writeln", TokenKind.SWRITELN);
+
+        // symbols (2文字 → 1文字)
+        SYMBOLS.put(":=", TokenKind.SASSIGN);
+        SYMBOLS.put("<=", TokenKind.SLESSEQUAL);
+        SYMBOLS.put(">=", TokenKind.SGREATEQUAL);
+        SYMBOLS.put("<>", TokenKind.SNOTEQUAL);
+        SYMBOLS.put("..", TokenKind.SRANGE);
+
+        SYMBOLS.put("=",  TokenKind.SEQUAL);
+        SYMBOLS.put("<",  TokenKind.SLESS);
+        SYMBOLS.put(">",  TokenKind.SGREAT);
+        SYMBOLS.put("+",  TokenKind.SPLUS);
+        SYMBOLS.put("-",  TokenKind.SMINUS);
+        SYMBOLS.put("*",  TokenKind.SSTAR);
+        SYMBOLS.put("(",  TokenKind.SLPAREN);
+        SYMBOLS.put(")",  TokenKind.SRPAREN);
+        SYMBOLS.put("[",  TokenKind.SLBRACKET);
+        SYMBOLS.put("]",  TokenKind.SRBRACKET);
+        SYMBOLS.put(";",  TokenKind.SSEMICOLON);
+        SYMBOLS.put(":",  TokenKind.SCOLON);
+        SYMBOLS.put(",",  TokenKind.SCOMMA);
+        SYMBOLS.put(".",  TokenKind.SDOT);
+        SYMBOLS.put("/",  TokenKind.SDIVD); // / も SDIVD
+    }
+}
