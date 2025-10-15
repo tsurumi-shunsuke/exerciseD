@@ -1,0 +1,15 @@
+public class Tokenizer {
+	public Token nextToken() {
+		skip();
+		if (eof()) return null;
+		if (isSymbol(currentChar)) {
+			return readSymbol();
+		} else if (isNumber(currentChar)) {
+			return readNumber();
+		} else if (currentChar == '\'') {
+			return readQuoted();
+		} else {
+			return readWord();
+		}
+	}
+}

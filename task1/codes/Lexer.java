@@ -32,7 +32,7 @@ public class Lexer {
             Path parent = out.getParent();
             if (parent != null && !Files.exists(parent)) Files.createDirectories(parent);
             
-            // 入力ファイルから全もj列を取得
+            // 入力ファイルから全文字列を取得
             String rawText = Files.readString(in, StandardCharsets.UTF_8);
             Tokenizer tz = new Tokenizer(rawText);
             

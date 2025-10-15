@@ -1,0 +1,19 @@
+public class Token {
+    public Token(final String name) {
+        this.name = name;
+        switch (name) {
+            case "and":
+                this.type = "SAND"; this.id = 0; break;
+            // 省略
+            default:
+            	if (isUnsignedInt(name)) {
+            		this.type = "SCONSTANT"; this.id = 44;
+            	} else if (isPascalString(name)) {
+            		this.type = "SSTRING"; this.id = 45;
+            	} else {
+            		this.type = "SIDENTIFIER"; this.id = 43;
+            	}
+            	break;
+        }
+    }
+}

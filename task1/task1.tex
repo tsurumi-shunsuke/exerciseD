@@ -7,6 +7,14 @@
 \usepackage{tabularx}
 \usepackage{booktabs}
 \usepackage{multirow}
+\usepackage{subcaption} 
+
+% サブ表のキャプション位置を下に変更（図と揃える）
+\captionsetup[subtable]{position=bottom}
+% 必要なら体裁も統一
+\captionsetup[subfigure]{font=small}
+\captionsetup[subtable]{font=small}
+
 
 % 担当教員名
 \newcommand{\teacherName}{桝井 晃基}
@@ -76,10 +84,168 @@
 
 
 \section{システムの仕様}
-\section{課題達成の方針と設計}
-\section{実装プログラム}
-\section{考察や工夫点}
-\section{感想}
+\verb|Pascal|風言語のソースから字句解析によりトークン列を生成し，トークン名・種別・\verb|ID|・行番号を出力する．
+\verb|Lexer.run(String,String)| により，第一引数で入力\verb|.pas|，第二引数で出力\verb|.ts|を指定する．
+出力は各行をタブ区切りで「[トークン名] [トークン種] [トークン\verb|ID|] [行番号]」とする．
+処理が正常終了した場合は \verb|"OK"|，入力ファイル未発見時は \verb|"File not found"| を返す．
 
+\section{課題達成の方針と設計}
+\subsection{各機能の分担}
+\begin{figure}[h]
+  \centering
+  % 図(左)
+  \begin{subfigure}[t]{0.55\linewidth}
+    \vspace{0pt}
+    \centering
+    \includegraphics[width=\linewidth]{images/class.pdf}
+    \caption{クラス図}
+    \label{fig:class}
+  \end{subfigure}\hfill
+  % 表(右)
+  \begin{subtable}[t]{0.40\linewidth}
+    \vspace{18pt}
+    \centering
+    \begin{tabular}{|l|p{4.0cm}|}
+        \hline
+        クラス名 & 役割\\
+        \hline
+        \verb|Lexer| & 
+        入出力と制御を担当する．
+        \verb|.pas|ファイルを読み込み\verb|Tokenizer|を駆動し，トークン列を取得して\verb|.ts|に出力する．
+        終了時に\verb|"OK"|か\verb|"File not found"|を出力する．\\
+        \hline
+        \verb|Tokenizer| & 
+        \verb|.pas|ファイルの文字列からトークンを切り出して，\verb|Token|を生成する．
+        同時に行番号の管理も行う．\\
+        \hline
+        \verb|Token| & 
+        トークン\verb|ID|，トークン種，トークン名を保持する不変オブジェクト．
+        渡されたトークンを判別する．\\
+        \hline
+    \end{tabular}
+    \caption{各クラスの役割}
+    \label{tab:class}
+  \end{subtable}
+
+  \caption{クラス図と各クラスの役割の対応}
+  \label{fig-tab:class}
+\end{figure}
+
+字句解析は，図\ref{fig-tab:class}のように3つのクラスに機能を分担して実装する．
+図\ref{fig:class}は各クラス間の関係と，各クラスの持つフィールドとメソッドを示しており，図\ref{tab:class}は各クラスの役割を示している．
+これらのオブジェクトによって，以下の流れで機能を実現する．
+\begin{enumerate}
+    \item \verb|Lexer|が入力ファイルを読み取り，入力ファイル内の全文字列を取得する．そして，\verb|Tokenizer|を生成し，取得した全文字列を渡す．
+    \item \verb|Tokenizer|が文字を分析し，トークンごとに分割する．そして，\verb|Token|を生成して分割したトークン文字列を渡す．
+    \item \verb|Token|は渡されたトークンのIDとトークン種を取得する．
+    \item \verb|Lexer|は\verb|Token|からトークン名，トークン種，トークンIDを，\verb|Tokenizer|から行番号を取得し，出力ファイルに書き出す．まだ解析するべき文字が残っているなら2へ戻る．
+\end{enumerate}
+
+
+
+\subsection{トークンの分割}
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.43\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/DFA.pdf}
+        \caption{決定性有限オートマトン}
+        \label{fig:DFA}
+    \end{minipage}\hfill
+    \begin{minipage}{0.42\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{images/DFA-symbol.pdf}
+        \caption{決定性有限オートマトン（記号の例）}
+        \label{fig:DFA-symbol}
+    \end{minipage}
+\end{figure}
+
+\verb|Tokenizer| は図\ref{fig:DFA}の決定性有限オートマトンで終端を判定する．
+先頭文字により「記号・数字・文字列・英数字」の4系統へ分岐し，系統ごとに終了条件を定義する．
+数字は非数字が現れた時点で確定し，文字列は引用符で開始し \verb|''| を内部の一重引用符として扱う．
+記号は最長一致を基本とし，必要時のみ2文字目を先読みして図\ref{fig:DFA-symbol}の規則に従い確定する．
+
+
+\subsection{トークンの判別}
+\verb|Tokenizer|によって切り出されたトークンにおいて，トークン種とトークン\verb|ID|を調べる必要がある．
+そのために，トークンに関する情報を保持しているのが\verb|Token|オブジェクトである．
+\verb|Token|は，生成時にトークン名の文字列を渡されるため，そのトークン名がどれであるかを文字列一致で調べる．
+45通りのトークン種のうち，予約語や記号などの文字列に一致しなかったトークンは，識別子・符号なし整数・文字列のいずれかとなる．
+この判別は，トークンがどの文字で構成されているかを調べればよい．
+このようにして判別された各トークンは，\verb|Token|が保持しているトークン種とトークン\verb|ID|を取得する．
+
+
+\section{実装プログラム}
+\subsection{Lexer}
+\verb|Lexer|は，入力ファイルを\verb|in|，出力ファイルを\verb|out|に保持し，\verb|in|からファイル内の全文字列を取得し\verb|rawText|に代入する．
+この\verb|rawText|を\verb|Tokenizer|に渡してオブジェクトを生成し，トークンを切り出す．
+トークンの切り出しは，\verb|Token|型の\verb|Tokenizer.nextToken()|メソッドで行い，名前，種類，\verb|ID|，行番号を取得する．
+これらを\verb|out|に書き出すことを繰り返し，処理が終了したら\verb|"OK"|を返す．
+
+\subsection{Tokenizer}
+\verb|Tokenizer|は，\verb|Lexer|からファイル内の全文字列を渡されて生成され，そのファイル内文字列をトークンに分割する機能を持つ．
+トークンへの分割は，このオブジェクトの\verb|Token|型\verb|nextToken()|メソッドを呼び出すことで実現する．
+プログラム\ref{prog:Tokenizer}は，このメソッドを簡易的に記したものである．
+
+\verb|Tokenizer|は，\verb|currentChar|で現在参照している文字を保持し，\verb|nextChar|でその次の文字を保持して，決定性有限オートマトン（図\ref{fig:DFA}）を表現している．
+また，読み出した文字が改行文字であるとき，\verb|line|フィールドをインクリメントして行番号を管理する．
+\verb|nextToken()|メソッドが呼び出されると，まず\verb|skip()|メソッドによって，\verb|currentChar|が何らかの文字を保持するまで空白や改行を読み飛ばす．
+次に，先頭の文字（\verb|currentChar|）が，記号・数字・引用符・英字のどれに分類されるかを調べ，それぞれ適切な処理へ分岐する．
+
+例えば，先頭の文字が数字であった場合は，\verb|isNumber(char)|メソッドが\verb|true|を返し，\verb|readNumber()|メソッドを呼び出す．
+\verb|readNumber()|メソッドは，\verb|currentChar|と\verb|nextChar|を更新しながらそれ以降の文字を順に調べていく．
+このとき，読み出した文字を\verb|StringBuilder|に格納していき，トークン文字列を作成する．
+読み出した文字が数字でないためにトークンの終端を判定したら，\verb|Token|オブジェクトを生成しトークン文字列を渡して，処理を終了する．
+
+このような処理を記号・引用符・英字の場合も繰り返すことで，すべてのトークンに分割する．
+なお，\verb|eof()|メソッドが\verb|true|を返したとき，ファイルの読み取りが終了したとして\verb|null|を返すようにしている．
+
+
+
+\lstinputlisting[caption=Token.java, firstline=1, firstnumber=1, lastline=15, label=prog:Tokenizer]{codes/Tokenizer.txt}
+
+\subsection{Token}
+\verb|Token|は，\verb|Tokenizer|からトークンを渡されて生成され，コンストラクタ内で\verb|switch|文によって文字列が一致するか検証しトークンを調べる．
+その様子を簡易的に書き出したものがプログラム\ref{prog:Token}である．
+渡されたトークンが予約語や記号で一致したとき，それに応じて保持されているトークン種（\verb|type|）とトークン\verb|ID|（\verb|id|）を取り出す．
+文字列が一致しなかったとき，そのトークンは数字・文字列・識別子のいずれかであるから，\verb|switch|文の\verb|default|で，渡された文字列が数字であるか調べる\verb|isUnsignedInt(char)|メソッドと，文字列であるか調べる\verb|isPascalString(char)|メソッドによってトークン種を判別する．
+そのどれでもないときは識別子と判定することで，45通りのトークン種に分類することができる．
+
+\lstinputlisting[caption=Token.java, firstline=1, firstnumber=1, lastline=25, label=prog:Token]{codes/Token.txt}
+
+
+\section{考察や工夫点}
+
+\subsection{設計の工夫点}
+\begin{enumerate}
+  \item \textbf{DFAによる終端判定の一元化}：
+  先頭文字で記号・数値・文字列・英数字の4系統へ分岐し，各系統をDFAで処理することで分岐数を抑えた．
+  最長一致は必要時のみ1文字先読みで実現し，失敗時は即1文字へフォールバックするように設計した．
+  \item \textbf{責務分離と不変データ}：
+  \verb|Lexer|はI/Oと制御，\verb|Tokenizer|は走査とトークン構築，\verb|Token|は同定を担当させた．
+  \verb|Token|は不変として生成時に種別と\verb|ID|を確定し，後工程の副作用依存を排した．
+  \item \textbf{表駆動の同定}：
+  予約語・記号は表引きで明示列挙し，未一致のみ整数・文字列・識別子の順で軽量判定する構造とした．
+  表は実装依存を局所化するための拡張点でもある．
+  \item \textbf{線形時間性}：
+  各文字は高々定数回の先読みと状態遷移で確定し，計算量は入力長$n$に対して$O(n)$である．
+  補助記憶は現在構築中トークンに対する$O(L)$（最長トークン長）に限定した．
+\end{enumerate}
+
+\subsection{今後の改善点・拡張性}
+今後は，コメント記法（\verb|{...}|，\verb|(*...*)|，\verb|//|）の正式対応と未閉じ検出を実装し，診断は行・桁情報を含む分かりやすいメッセージへ拡充する．
+さらに，数値リテラルを実数・指数・基数表記へ広げ，\verb|DFA|を誤判定の起きにくい形へ整理して堅牢性を高める．
+予約語・記号表は\verb|JSON|等へ外部化してビルド時に生成することで，仕様変更や課題ごとの差分に強い構成とする．
+あわせて，識別子の\verb|Unicode|対応として正規化と字種判定を導入し，多言語環境でも一貫して解析できる字句体系へ発展させることで，より完成度の高い字句解析が実現できると考えられる．
+
+
+
+
+
+\section{感想}
+字句解析器の実装を通じて，最長一致の実装テクニックや\verb|DFA|に落とし込む設計思考，そして責務分離の重要性を実感した．
+特に，\verb|Tokenizer|の先読みは容易にバグの温床になりうるため，「必要なときだけ最小限先読みし，失敗したら即座に 1 文字確定へフォールバックする」方針が有効だった．
+今後はコメントや実数表記など仕様を広げても，\verb|Token|の不変設計と\verb|Lexer|・\verb|Tokenizer|の分離により安全に拡張できる見通しが立った．
+コンパイラ前段の作り分けが後段（構文解析・意味解析）の開発効率を左右することを体感でき，有意義な課題であった．
 
 \end{document}

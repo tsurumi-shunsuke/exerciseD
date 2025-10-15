@@ -1,24 +1,28 @@
 # Fdb version 4
-["dvipdf"] 1760432073.69741 "out/task1.dvi" "out/task1.pdf" "out/task1" 1760432074.98616 0
-  "out/task1.dvi" 1760432073 1892 2798285fd891a2ef3566d1ff39fcbead "latex"
+["dvipdf"] 1760516124.54276 "out/task1.dvi" "out/task1.pdf" "out/task1" 1760516125.77713 0
+  "out/task1.dvi" 1760516124 26684 1ae8abb41a9f47cf9c41bf59d36d56e9 "latex"
   (generated)
   "out/task1.pdf"
   (rewritten before read)
-["latex"] 1760432072.46866 "c:/Users/s2-ru/University/2025-second/exerciseD/task1/report/task1.tex" "out/task1.dvi" "task1" 1760432074.97752 0
-  "c:/Users/s2-ru/University/2025-second/exerciseD/task1/report/task1.tex" 1760432069 2251 f541e6bd499744ede7409cc2859a1a2c ""
+["latex"] 1760516120.95917 "c:/Users/s2-ru/University/2025-second/exerciseD/task1/task1.tex" "out/task1.dvi" "task1" 1760516125.77402 0
+  "c:/Users/s2-ru/University/2025-second/exerciseD/task1/task1.tex" 1760516119 14427 4163fe629f6ffb874426e38f5e1e4b3f ""
   "c:/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1713413497 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/ptex-fonts/standard/goth10.tfm" 1713416054 1196 5981e79c37b2cfd27b3612a6783cd4b6 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/ptex-fonts/standard/min10.tfm" 1713416054 1196 1be730212205a270378fba11a44765dc ""
+  "c:/texlive/2024/texmf-dist/fonts/tfm/ptex-fonts/standard/min9.tfm" 1713416054 1196 415df3c165ce605a3c248afbbe3c844b ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/ptex-fonts/standard/tgoth10.tfm" 1713416054 856 7404843a5f798859944d7973a47821d5 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin10.tfm" 1713416054 856 39c171483fe1bb7d0e1368980c0c205b ""
+  "c:/texlive/2024/texmf-dist/fonts/tfm/ptex-fonts/standard/tmin9.tfm" 1713416054 856 b22b8128b44bf8881977f2c74b361f47 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntx-Bold-tlf-ot1.tfm" 1713415252 2976 0e6dc2c6c1f88a98285fe5183da02574 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntx-Regular-tlf-ot1.tfm" 1713415252 3008 ca0c83ca288d9f1c5d2fca0e8e268f10 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxexa.tfm" 1713415252 760 e8ec875a87aa119f1af7ea4be48da9e8 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxexx.tfm" 1713415252 1788 252bc928adbd02cba8c68f0fccd62f6c ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxmi.tfm" 1713415252 4172 1526bfb9e9568e0f4fb805c4dd94c28d ""
+  "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxmi5.tfm" 1713415252 3308 d9d654d4f27ed240ea47773a02bead2a ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxmi7.tfm" 1713415252 3332 a520b9aff96ee52c272945382939f67a ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxmia.tfm" 1713415252 2596 96de89ea000bcede4330a93843ac124b ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxsy.tfm" 1713415252 2028 52e8459eebf22a562b33a44afb65f348 ""
+  "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxsy5.tfm" 1713415252 2024 0dab6936a8d786f55f0dc7a2278c035a ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxsy7.tfm" 1713415252 1992 670a73c7d8c003bea90885f098740a17 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxsyc.tfm" 1713415252 1028 2f6cbe812325cff65b38e4c0a517f4cb ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxsym.tfm" 1713415252 1560 755acbe6da75f914298c79fa8bb324fd ""
@@ -38,6 +42,9 @@
   "c:/texlive/2024/texmf-dist/tex/latex/base/ifthen.sty" 1713414397 5319 2b738d02ce36ada6dcdd9534940db0ee ""
   "c:/texlive/2024/texmf-dist/tex/latex/base/textcomp.sty" 1713414397 2894 fc64867f9d198785eabe71a88276a9cb ""
   "c:/texlive/2024/texmf-dist/tex/latex/booktabs/booktabs.sty" 1713402186 6078 f1cb470c9199e7110a27851508ed7a5c ""
+  "c:/texlive/2024/texmf-dist/tex/latex/caption/caption.sty" 1713402265 56128 c2ccf1a29d78c33bc553880402e4fb9a ""
+  "c:/texlive/2024/texmf-dist/tex/latex/caption/caption3.sty" 1713402265 72619 ee90b6612147680fd73c3b1406a74245 ""
+  "c:/texlive/2024/texmf-dist/tex/latex/caption/subcaption.sty" 1713402265 12494 0c0cdb824278a4d51cefeb2e79901315 ""
   "c:/texlive/2024/texmf-dist/tex/latex/carlisle/scalefnt.sty" 1713402267 1360 df2086bf924b14b72d6121fe9502fcdb ""
   "c:/texlive/2024/texmf-dist/tex/latex/etoolbox/etoolbox.sty" 1713413269 46845 3b58f70c6e861a13d927bff09d35ecbc ""
   "c:/texlive/2024/texmf-dist/tex/latex/fontaxes/fontaxes.sty" 1713413488 14310 41fdb35c51be792ddf00696848d0cfef ""
@@ -85,8 +92,13 @@
   "c:/texlive/2024/texmf-dist/web2c/texmf.cnf" 1717248008 41983 7ec6bfd6bf34339a61f0f08f42298e60 ""
   "c:/texlive/2024/texmf-var/web2c/euptex/platex.fmt" 1717248932 8161728 1aeabc979960e0c5e4a54d4c7517a8aa ""
   "c:/texlive/2024/texmf.cnf" 1713417677 713 e69b156964470283e0530f5060668171 ""
-  "out/task1.aux" 1760432073 568 66acf45f17307fb01181c721d05e79ae "latex"
-  "task1.tex" 1760432069 2251 f541e6bd499744ede7409cc2859a1a2c ""
+  "codes/Token.txt" 1760514632 573 50ed704654d0edde7a6e71e81b78c342 ""
+  "codes/Tokenizer.txt" 1760508446 323 1f2af2a902ed1aef8eb7e4c074ecc828 ""
+  "images/DFA-symbol.pdf" 1760437996 33569 b1ce350499211921c35ed2fff0895241 ""
+  "images/DFA.pdf" 1760437563 49698 a3394d2ab811f38c14d9ad77cc941206 ""
+  "images/class.pdf" 1760439642 31846 92acfcb07b53f67640b9924dd914e687 ""
+  "out/task1.aux" 1760516124 2513 fbb66aa3321054247dd378a458a1e4a5 "latex"
+  "task1.tex" 1760516119 14427 4163fe629f6ffb874426e38f5e1e4b3f ""
   (generated)
   "out/task1.aux"
   "out/task1.dvi"
