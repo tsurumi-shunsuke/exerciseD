@@ -1,11 +1,11 @@
 # Fdb version 4
-["dvipdf"] 1760516124.54276 "out/task1.dvi" "out/task1.pdf" "out/task1" 1760516125.77713 0
-  "out/task1.dvi" 1760516124 26684 1ae8abb41a9f47cf9c41bf59d36d56e9 "latex"
+["dvipdf"] 1760690782.18301 "out/task1.dvi" "out/task1.pdf" "out/task1" 1760690782.97013 0
+  "out/task1.dvi" 1760690782 27104 c2f6a93716da0a703e567bf662c5a8ef "latex"
   (generated)
   "out/task1.pdf"
   (rewritten before read)
-["latex"] 1760516120.95917 "c:/Users/s2-ru/University/2025-second/exerciseD/task1/task1.tex" "out/task1.dvi" "task1" 1760516125.77402 0
-  "c:/Users/s2-ru/University/2025-second/exerciseD/task1/task1.tex" 1760516119 14427 4163fe629f6ffb874426e38f5e1e4b3f ""
+["latex"] 1760690779.58796 "c:/Users/s2-ru/University/2025-second/exerciseD/task1/task1.tex" "out/task1.dvi" "task1" 1760690782.96743 0
+  "c:/Users/s2-ru/University/2025-second/exerciseD/task1/task1.tex" 1760690778 14711 bb2edd24716e0770208681f5812118f6 ""
   "c:/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1713413497 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/ptex-fonts/standard/goth10.tfm" 1713416054 1196 5981e79c37b2cfd27b3612a6783cd4b6 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/ptex-fonts/standard/min10.tfm" 1713416054 1196 1be730212205a270378fba11a44765dc ""
@@ -95,10 +95,10 @@
   "codes/Token.txt" 1760514632 573 50ed704654d0edde7a6e71e81b78c342 ""
   "codes/Tokenizer.txt" 1760508446 323 1f2af2a902ed1aef8eb7e4c074ecc828 ""
   "images/DFA-symbol.pdf" 1760437996 33569 b1ce350499211921c35ed2fff0895241 ""
-  "images/DFA.pdf" 1760437563 49698 a3394d2ab811f38c14d9ad77cc941206 ""
+  "images/DFA.pdf" 1760690366 55141 693c555ffa5ebdc3f12ee930de9e1a93 ""
   "images/class.pdf" 1760439642 31846 92acfcb07b53f67640b9924dd914e687 ""
-  "out/task1.aux" 1760516124 2513 fbb66aa3321054247dd378a458a1e4a5 "latex"
-  "task1.tex" 1760516119 14427 4163fe629f6ffb874426e38f5e1e4b3f ""
+  "out/task1.aux" 1760690782 2513 fbb66aa3321054247dd378a458a1e4a5 "latex"
+  "task1.tex" 1760690778 14711 bb2edd24716e0770208681f5812118f6 ""
   (generated)
   "out/task1.aux"
   "out/task1.dvi"

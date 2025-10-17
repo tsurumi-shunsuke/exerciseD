@@ -152,7 +152,7 @@
         \caption{決定性有限オートマトン}
         \label{fig:DFA}
     \end{minipage}\hfill
-    \begin{minipage}{0.42\linewidth}
+    \begin{minipage}{0.45\linewidth}
         \centering
         \includegraphics[width=\linewidth]{images/DFA-symbol.pdf}
         \caption{決定性有限オートマトン（記号の例）}
@@ -161,7 +161,9 @@
 \end{figure}
 
 \verb|Tokenizer| は図\ref{fig:DFA}の決定性有限オートマトンで終端を判定する．
-先頭文字により「記号・数字・文字列・英数字」の4系統へ分岐し，系統ごとに終了条件を定義する．
+まず，空白・改行・コメントアウトの部分を読み飛ばすことで，トークンの先頭が何らかの文字になるようにする．
+コメントアウトは，中括弧\verb|｛｝|で囲まれた文字列と定義する．
+次に，先頭文字により「記号・数字・文字列・英数字」の4系統へ分岐し，系統ごとに終了条件を定義する．
 数字は非数字が現れた時点で確定し，文字列は引用符で開始し \verb|''| を内部の一重引用符として扱う．
 記号は最長一致を基本とし，必要時のみ2文字目を先読みして図\ref{fig:DFA-symbol}の規則に従い確定する．
 
@@ -189,7 +191,7 @@
 
 \verb|Tokenizer|は，\verb|currentChar|で現在参照している文字を保持し，\verb|nextChar|でその次の文字を保持して，決定性有限オートマトン（図\ref{fig:DFA}）を表現している．
 また，読み出した文字が改行文字であるとき，\verb|line|フィールドをインクリメントして行番号を管理する．
-\verb|nextToken()|メソッドが呼び出されると，まず\verb|skip()|メソッドによって，\verb|currentChar|が何らかの文字を保持するまで空白や改行を読み飛ばす．
+\verb|nextToken()|メソッドが呼び出されると，まず\verb|skip()|メソッドによって，\verb|currentChar|が何らかの文字を保持するまで空白・改行・コメントアウトを読み飛ばす．
 次に，先頭の文字（\verb|currentChar|）が，記号・数字・引用符・英字のどれに分類されるかを調べ，それぞれ適切な処理へ分岐する．
 
 例えば，先頭の文字が数字であった場合は，\verb|isNumber(char)|メソッドが\verb|true|を返し，\verb|readNumber()|メソッドを呼び出す．
