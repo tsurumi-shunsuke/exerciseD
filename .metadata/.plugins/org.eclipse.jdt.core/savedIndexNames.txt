@@ -2,8 +2,8 @@ INDEX VERSION 1.134+C:\Users\s2-ru\University\2025-second\exerciseD\.metadata\.p
 2170651274.index
 2143312189.index
 966137682.index
-3990807175.index
 1865797976.index
+3990807175.index
 1098967401.index
 1452015374.index
 2856117950.index

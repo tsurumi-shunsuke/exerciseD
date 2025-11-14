@@ -1,0 +1,9 @@
+package enshud.ast;
+
+public class ArrayAccess {
+
+	public ArrayAccess() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

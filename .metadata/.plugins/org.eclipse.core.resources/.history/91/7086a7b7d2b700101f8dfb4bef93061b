@@ -1,0 +1,9 @@
+package enshud.ast;
+
+public class ProcedureDecl {
+
+	public ProcedureDecl() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

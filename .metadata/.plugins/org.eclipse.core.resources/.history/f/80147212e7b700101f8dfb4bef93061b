@@ -1,0 +1,38 @@
+package enshud.s2.parser;
+
+import enshud.ast.*;
+
+public class Syntax {
+	// 入力文の情報を保存しているオブジェクトを受け取り，tsに保存する
+    private final TsSource ts;
+    public Syntax(TsSource ts) { this.ts = ts; }
+	
+    // 構文解析を開始する関数
+    public void parseProgram() {
+        expect("SPROGRAM");
+        expect("SIDENTIFIER");
+        expect("SSEMICOLON");
+        parseBlock();
+        parseCompound();
+        expect("SDOT");
+    }
+    
+    public void parseBlock() {
+    	
+    }
+	
+    public void parseCompound() {
+    	
+    }
+	
+    private boolean at(String kind) {
+        return ts.peek().kind.equals(kind);
+    }
+    private boolean match(String kind) {
+        if (at(kind)) { ts.advance(); return true; }
+        return false;
+    }
+    private void expect(String kind) {
+        if (!match(kind)) throw new ParseError(ts.peek().lineNo);
+    }
+}

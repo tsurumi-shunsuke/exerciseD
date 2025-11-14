@@ -1,0 +1,9 @@
+package enshud.ast;
+
+public class Litkind {
+
+	public Litkind() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

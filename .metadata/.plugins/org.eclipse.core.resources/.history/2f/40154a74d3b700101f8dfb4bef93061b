@@ -1,0 +1,9 @@
+package enshud.ast;
+
+public class LValue {
+
+	public LValue() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

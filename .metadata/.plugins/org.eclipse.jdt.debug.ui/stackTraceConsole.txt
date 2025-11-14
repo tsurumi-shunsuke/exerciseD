@@ -1,0 +1,12 @@
+java.lang.Error: Unresolved compilation problems: 
+	Tokenizer cannot be resolved to a type
+	Tokenizer cannot be resolved to a type
+
+	at enshud.s1.lexer.Lexer.run(Lexer.java:37)
+	at enshud.s1.lexer.LexerTest.testNormal01(LexerTest.java:49)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+

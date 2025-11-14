@@ -1,0 +1,173 @@
+@startuml ast
+skinparam classAttributeIconSize 0
+left to right direction
+scale 0.7
+skinparam defaultFontSize 12
+skinparam classFontSize 14
+skinparam nodesep 3
+skinparam ranksep 3
+skinparam classPadding 5
+
+' メソッド等非表示
+hide attributes
+hide methods
+
+
+' ===== 基底 =====
+interface Node
+interface Expr extends Node
+interface Stmt extends Node
+interface TypeNode extends Node
+interface LValue extends Node
+
+' ===== 列挙・共通型 =====
+enum Op {
+  EQ
+  NEQ
+  LT
+  LE
+  GT
+  GE
+  ADD
+  SUB
+  OR
+  MUL
+  DIV
+  MOD
+  AND
+  POS
+  NEG
+  NOT
+}
+
+
+enum BuiltinType implements TypeNode { 
+  INTEGER
+  CHAR
+  BOOLEAN 
+}
+
+' ===== トップレベル =====
+class Program implements Node {
+  String name
+  int line
+}
+class Block implements Node {
+  int line
+}
+class Compound implements Stmt {
+  int line
+}
+
+Program "1" *-- "1" Block
+Program "1" *-- "1" Compound : main
+Block   "0..*" *-- "1" VarDecl       : vars
+Block   "0..*" *-- "1" ProcedureDecl : procs
+Compound "1..*" *-- "1" Stmt         : stmts
+
+' ===== 宣言 / 型 =====
+class VarDecl implements Node {
+  boolean isConst
+  int line
+}
+class Var implements LValue {
+  String name
+  int line
+}
+class ArrayType implements TypeNode {
+  long lower
+  long upper
+  int line
+}
+
+VarDecl "1" *-- "1" TypeNode : type
+VarDecl "1..*" *-- "1" Var   : names
+ArrayType "1" *-- "1" TypeNode : elemType
+
+' ===== 手続き =====
+class Param implements Node {
+  boolean byRef
+  int line
+}
+class ProcedureDecl implements Node {
+  String name
+  int line
+}
+
+ProcedureDecl "0..*" *-- "1" Param     : params
+ProcedureDecl "0..*" *-- "1" VarDecl   : locals
+ProcedureDecl "1"   *-- "1" Compound   : body
+
+' ===== 文 =====
+class Assign implements Stmt { 
+  int line 
+}
+class IfS    implements Stmt { 
+  int line 
+}
+class WhileS implements Stmt { 
+  int line 
+}
+class ProcCall implements Stmt {
+  String name
+  int line 
+}
+class Readln implements Stmt {
+  int line 
+}
+class Writeln implements Stmt {
+  int line 
+}
+
+Assign  "1" *-- "1" LValue : lhs
+Assign  "1" *-- "1" Expr   : rhs
+
+IfS     "1" *-- "1" Expr     : cond
+IfS     "1" *-- "1" Compound : thenC
+IfS     "0..1" *-- "1" Compound : elseC
+
+WhileS  "1" *-- "1" Expr : cond
+WhileS  "1" *-- "1" Stmt : body
+
+ProcCall "0..*" *-- "1" Expr : args
+Readln   "1..*" *-- "1" LValue : vars
+Writeln  "0..*" *-- "1" Expr : args
+
+' ===== 式 =====
+class Binary implements Expr { 
+  Op op 
+}
+class Unary  implements Expr { 
+  Op op 
+}
+class Literal implements Expr {
+  String lexeme
+  LitKind kind
+  int line 
+}
+class VarRef  implements Expr { 
+  int line
+}
+class ArrayRef implements Expr { 
+  String name
+  int line 
+}
+
+Binary "1" *-- "1" Expr : left
+Binary "1" *-- "1" Expr : right
+Unary  "1" *-- "1" Expr : operand
+
+' ===== 左辺値 =====
+class ArrayAccess implements LValue { 
+  String name
+  int line 
+}
+
+ArrayAccess "1" *-- "1" Expr : index
+ArrayRef    "1" *-- "1" Expr : index
+
+' 参照（束縛）関係
+VarRef  ..> Var : binds
+ArrayRef ..> Var : arrayName
+
+@enduml

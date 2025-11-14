@@ -1,0 +1,9 @@
+package enshud.ast;
+
+public class Compound {
+
+	public Compound() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

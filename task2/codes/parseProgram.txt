@@ -1,0 +1,9 @@
+public Program parseProgram() {
+    expect("SPROGRAM");
+    var nameTok = expectRet("SIDENTIFIER");
+    expect("SSEMICOLON");
+    Block block  = parseBlock();
+    Compound main = parseCompound();
+    expect("SDOT");
+    return new Program(nameTok.name, block, main, nameTok.lineNo);
+}
