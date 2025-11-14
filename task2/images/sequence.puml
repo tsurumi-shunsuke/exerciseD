@@ -1,0 +1,26 @@
+@startuml sequence
+autonumber
+actor Client
+participant Parser
+participant TsSource
+participant Syntax
+participant ParseError
+
+Client -> Parser : run (inputFileName)
+Parser -> TsSource : new (tsFile)
+Parser -> Syntax   : new (TsSource)
+Parser -> Syntax   : parseProgram ()
+activate Syntax
+Syntax -> TsSource : peek () / advance () (繰り返し)
+
+alt 成功
+  Syntax --> Parser : Program
+  deactivate Syntax
+  Parser --> Client : "OK"
+else 構文エラー
+  Syntax -> ParseError : new (lineNo)
+  Syntax --> Parser    : exception (ParseError) 
+  deactivate Syntax
+  Parser --> Client : "Syntax Error: line x"
+end
+@enduml

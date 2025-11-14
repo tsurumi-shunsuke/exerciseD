@@ -1,0 +1,256 @@
+package enshud.s2.parser;
+
+import enshud.ast.*;
+
+public class Syntax {
+	// 入力文の情報を保存しているオブジェクトを受け取り，tsに保存する
+    private final TsSource ts;
+    public Syntax(TsSource ts) { this.ts = ts; }
+	
+    // プログラム = "program" プログラム名 ";" ブロック 複合文 "."
+    public void parseProgram() {
+        expect("SPROGRAM");
+        expect("SIDENTIFIER");
+        expect("SSEMICOLON");
+        parseBlock();
+        parseCompound();
+        expect("SDOT");
+    }
+
+    // ブロック = 変数宣言 副プログラム宣言群
+    public void parseBlock() {
+        parseVarDeclPart();   // [ "var" 変数宣言の並び ]
+        parseProcDecls();     // { 副プログラム宣言 ";" }
+    }
+
+    // 複合文 = "begin" 文の並び "end"
+    // 文の並び = 文 ";" { 文 ";" }  （← 末尾セミコロン必須）
+    public void parseCompound() {
+        expect("SBEGIN");
+        parseStatement();
+        expect("SSEMICOLON");
+        while (!at("SEND")) {
+            parseStatement();
+            expect("SSEMICOLON");
+        }
+        expect("SEND");
+    }
+
+    // 文 = 基本文 | if | while  （本体は必ず複合文）
+    private void parseStatement() {
+        if (at("SBEGIN")) {
+            parseCompound();
+        } else if (at("SIF")) {
+            next();
+            parseExpr();
+            expect("STHEN");
+            parseCompound();
+            if (match("SELSE")) parseCompound();
+        } else if (at("SWHILE")) {
+            next();
+            parseExpr();
+            expect("SDO");
+            parseCompound();
+        } else if (at("SREADLN") || at("SWRITELN")) {
+            parseIOStmt();
+        } else if (at("SIDENTIFIER")) {
+            parseAssignOrCall();
+        } else {
+            fail();
+        }
+    }
+
+    // 基本文 = 代入文 | 手続き呼出し文 | 入出力文 | 複合文
+    // 代入文 = 左辺 ":=" 式.
+    // 手続き呼出し文 = 手続き名 [ "(" 式の並び ")" ].
+    private void parseAssignOrCall() {
+        expect("SIDENTIFIER");                     // 先頭名は共通
+
+        if (match("SLPAREN")) {                    // 手続き呼出しの形
+            if (!at("SRPAREN")) {
+                parseExpr();
+                while (match("SCOMMA")) parseExpr();
+            }
+            expect("SRPAREN");
+            return;
+        }
+
+        if (match("SLBRACKET")) {                  // 左辺が配列要素なら添字を読む
+            parseExpr();
+            expect("SRBRACKET");
+        }
+
+        expect("SASSIGN");                         // ":="
+        parseExpr();                               // 右辺
+    }
+
+    // 入出力文 = "readln" [ "(" 変数の並び ")" ] | "writeln" [ "(" 式の並び ")" ]
+    private void parseIOStmt() {
+        if (match("SREADLN")) {
+            if (match("SLPAREN")) {
+                parseLValue();
+                while (match("SCOMMA")) parseLValue();
+                expect("SRPAREN");
+            }
+        } else {
+            expect("SWRITELN");
+            if (match("SLPAREN")) {
+                parseExpr();
+                while (match("SCOMMA")) parseExpr();
+                expect("SRPAREN");
+            }
+        }
+    }
+
+    // 左辺 = 変数（純変数 or 添字付き変数）
+    private void parseLValue() {
+        expect("SIDENTIFIER");
+        if (match("SLBRACKET")) { parseExpr(); expect("SRBRACKET"); }
+    }
+
+    // 変数宣言 = [ "var" 変数宣言の並び ].
+    // 変数宣言の並び = 変数名の並び ":" 型 ";" { 変数名の並び ":" 型 ";" }.
+    private void parseVarDeclPart() {
+        if (match("SVAR")) {
+            parseVarDeclLine(); expect("SSEMICOLON");
+            while (at("SIDENTIFIER")) {
+                parseVarDeclLine(); expect("SSEMICOLON");
+            }
+        }
+    }
+
+    private void parseVarDeclLine() {              // 変数名の並び ":" 型
+        parseIdentList();
+        expect("SCOLON");
+        parseType();
+    }
+
+    private void parseIdentList() {                // 変数名の並び
+        expect("SIDENTIFIER");
+        while (match("SCOMMA")) expect("SIDENTIFIER");
+    }
+
+    // 型 = 標準型 | 配列型.
+    // 標準型 = "integer" | "char" | "boolean".
+    // 配列型 = "array" "[" 整数 ".." 整数 "]" "of" 標準型.
+    private void parseType() {
+        if (match("SINTEGER") || match("SCHAR") || match("SBOOLEAN")) return;
+
+        if (match("SARRAY")) {
+            expect("SLBRACKET");
+            parseInteger();                   // 添字の最小値
+            expect("SRANGE");                 // ".."
+            parseInteger();                   // 添字の最大値
+            expect("SRBRACKET");
+            expect("SOF");
+            if (!(match("SINTEGER") || match("SCHAR") || match("SBOOLEAN"))) fail();
+            return;
+        }
+        fail();
+    }
+
+    // 整数 = [ 符号 ] 符号なし整数.  （符号 = "+" | "-"、 符号なし整数 = SCONSTANT）
+    private void parseInteger() {
+        match("SPLUS"); match("SMINUS");
+        expect("SCONSTANT");
+    }
+
+    // 副プログラム宣言群 = { 副プログラム宣言 ";" }.
+    // 副プログラム宣言 = 副プログラム頭部 変数宣言 複合文.
+    // 副プログラム頭部 = "procedure" 手続き名 仮パラメータ ";".
+    private void parseProcDecls() {
+        while (match("SPROCEDURE")) {
+            expect("SIDENTIFIER");           // 手続き名
+            parseParamsOpt();                // 仮パラメータ
+            expect("SSEMICOLON");
+            parseVarDeclPart();              // 手続き内の変数宣言
+            parseCompound();                 // 本体
+            expect("SSEMICOLON");            // 副プログラム宣言の区切り
+        }
+    }
+
+    // 仮パラメータ = [ "(" 仮パラメータの並び ")" ].
+    // 仮パラメータの並び = 仮パラメータ名の並び ":" 標準型 { ";" 仮パラメータ名の並び ":" 標準型 }.
+    private void parseParamsOpt() {
+        if (match("SLPAREN")) {
+            if (!at("SRPAREN")) {
+                parseParamGroup();
+                while (match("SSEMICOLON")) parseParamGroup();
+            }
+            expect("SRPAREN");
+        }
+    }
+
+    private void parseParamGroup() {           // 仮パラメータ名の並び ":" 標準型
+        parseIdentList();
+        expect("SCOLON");
+        if (!(match("SINTEGER") || match("SCHAR") || match("SBOOLEAN"))) fail();
+    }
+
+    // 式 = 単純式 [ 関係演算子 単純式 ].
+    private void parseExpr() {
+        parseSimpleExpr();
+        if (at("SEQUAL") || at("SNOTEQUAL") || at("SLESS") ||
+            at("SLESSEQUAL") || at("SGREAT") || at("SGREATEQUAL")) {
+            next();
+            parseSimpleExpr();
+        }
+    }
+
+    // 単純式 = [ 符号 ] 項 { 加法演算子 項 }.
+    // 加法演算子 = "+" | "-" | "or".
+    private void parseSimpleExpr() {
+        match("SPLUS"); match("SMINUS");      // 先頭符号
+        parseTerm();
+        while (at("SPLUS") || at("SMINUS") || at("SOR")) {
+            next(); parseTerm();
+        }
+    }
+
+    // 項 = 因子 { 乗法演算子 因子 }.
+    // 乗法演算子 = "*" | "/" | "div" | "mod" | "and".
+    // ※ "/" も "div" もトークンは SDIVD
+    private void parseTerm() {
+        parseFactor();
+        while (at("SSTAR") || at("SDIVD") || at("SMOD") || at("SAND")) {
+            next(); parseFactor();
+        }
+    }
+
+    // 因子 = 変数 | 定数 | "(" 式 ")" | "not" 因子.
+    private void parseFactor() {
+        if (match("SIDENTIFIER")) {           // 変数
+            if (match("SLBRACKET")) { parseExpr(); expect("SRBRACKET"); }
+            return;
+        }
+        if (match("SCONSTANT") || match("SSTRING") || match("STRUE") || match("SFALSE")) return; // 定数
+        if (match("SLPAREN")) { parseExpr(); expect("SRPAREN"); return; }                         // (式)
+        if (match("SNOT")) { parseFactor(); return; }                                             // not 因子
+        fail();
+    }
+    
+    
+    
+    
+    
+    
+    // 引数と，参照入力文におけるトークンの一致の真偽を返す （matchで呼び出す）
+    private boolean at(String kind) {
+        return ts.peek().kind.equals(kind);
+    }
+    
+    // トークンが一致している場合，参照する文を更新　（expectで呼び出す）
+    private boolean match(String kind) {
+        if (at(kind)) { ts.advance(); return true; }
+        return false;
+    }
+    
+    // トークンが一致している場合，参照する文を更新
+    // トークンが一致しない場合，エラーとして構文解析を終了
+    private void expect(String kind) {
+        if (!match(kind)) throw new ParseError(ts.peek().lineNo);
+    }
+    
+    private void next() { ts.advance(); }
+    private void fail() { throw new ParseError(ts.peek().lineNo); }
+}

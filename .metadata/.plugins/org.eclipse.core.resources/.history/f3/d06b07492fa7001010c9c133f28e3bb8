@@ -1,9 +1,0 @@
-package enshud.s1.lexer;
-
-public class debag {
-	String test = "and";
-	
-	Token token = new Token(test);
-	
-	System.out.println(token.id);
-}

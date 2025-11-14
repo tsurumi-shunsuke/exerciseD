@@ -1,0 +1,9 @@
+package enshud.ast;
+
+public class TypeNode {
+
+	public TypeNode() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

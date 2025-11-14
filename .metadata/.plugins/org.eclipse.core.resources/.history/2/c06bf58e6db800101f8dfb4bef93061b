@@ -1,0 +1,443 @@
+package enshud.s2.parser;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import enshud.ast.*;
+
+public class Syntax {
+    private final TsSource ts;
+    public Syntax(TsSource ts) { this.ts = ts; }
+
+    // プログラム := "program" プログラム名 ";" ブロック 複合文 "."
+    public Program parseProgram() {
+        expect("SPROGRAM");
+        var nameTok = expectRet("SIDENTIFIER");
+        expect("SSEMICOLON");
+        Block block  = parseBlock();
+        Compound main = parseCompound();
+        expect("SDOT");
+        return new Program(nameTok.name, block, main, nameTok.lineNo);
+    }
+
+    // ブロック := 変数宣言 副プログラム宣言群
+    private Block parseBlock() {
+        int line = ts.peek().lineNo;
+        List<VarDecl> vars  = parseVarDeclPart();
+        List<ProcedureDecl> procs = parseProcDecls();
+        return new Block(vars, procs, line);
+    }
+
+    // 複合文 := "begin" 文の並び "end"
+    // 文の並び := 文 ";" { 文 ";" }
+    private Compound parseCompound() {
+        int line = expectRet("SBEGIN").lineNo;
+        List<Stmt> stmts = new ArrayList<>();
+        stmts.add(parseStatement());
+        expect("SSEMICOLON");
+        while (!at("SEND")) {
+            stmts.add(parseStatement());
+            expect("SSEMICOLON");
+        }
+        expect("SEND");
+        return new Compound(stmts, line);
+    }
+
+    // 文 := 基本文 | "if" 式 "then" 複合文 ["else" 複合文] | "while" 式 "do" 複合文
+    // 基本文 := 代入文 | 手続き呼出し文 | 入出力文 | 複合文
+    private Stmt parseStatement() {
+    	// 基本文　（複合文）
+        if (at("SBEGIN")) {
+            return parseCompound();
+        //　"if" 式 "then" 複合文 ["else" 複合文]
+        } else if (at("SIF")) {
+            var ifTok = expectRet("SIF");
+            Expr cond = parseExpr();
+            expect("STHEN");
+            Compound thenC = parseCompound();
+            Compound elseC = null;
+            if (match("SELSE")) elseC = parseCompound();
+            return new IfS(cond, thenC, elseC, ifTok.lineNo);
+        // "while" 式 "do" 複合文
+        } else if (at("SWHILE")) {
+            var whTok = expectRet("SWHILE");
+            Expr cond = parseExpr();
+            expect("SDO");
+            Compound body = parseCompound();
+            return new WhileS(cond, body, whTok.lineNo);
+        // 基本文　（入出力文）
+        } else if (at("SREADLN") || at("SWRITELN")) {
+            return parseIOStmt();
+        // 基本文　（代入文 | 手続き呼び出し文）
+        } else if (at("SIDENTIFIER")) {
+            return parseAssignOrCall();
+        } else {
+            fail(); return null; // 到達しない
+        }
+    }
+
+    // 代入文 := 左辺 ":=" 式
+    // 手続き呼出し文 := 手続き名 [ "(" 式の並び ")" ]  ※引数なしも可
+    // 左辺:= 変数 = 純変数 | 添字付き変数（name "[" 式 "]"）
+    private Stmt parseAssignOrCall() {
+        var idTok = expectRet("SIDENTIFIER");
+        String name = idTok.name;
+
+        // 手続き呼出し: name "(" [式 {, 式}] ")"
+        if (match("SLPAREN")) {
+            List<Expr> args = new ArrayList<>();
+            if (!at("SRPAREN")) {
+                args.add(parseExpr());
+                while (match("SCOMMA")) {
+                	args.add(parseExpr());
+                }
+            }
+            expect("SRPAREN");
+            return new ProcCall(name, args, idTok.lineNo);
+        }
+
+        // 左辺が配列要素: name "[" 式 "]" ":=" 式
+        if (match("SLBRACKET")) {
+            Expr index = parseExpr();
+            expect("SRBRACKET");
+            expect("SASSIGN");
+            Expr rhs = parseExpr();
+            return new Assign(new ArrayAccess(name, index, idTok.lineNo), rhs, idTok.lineNo);
+        }
+
+        // 純変数代入: name ":=" 式
+        if (match("SASSIGN")) {
+            Expr rhs = parseExpr();
+            return new Assign(new Var(name, idTok.lineNo), rhs, idTok.lineNo);
+        }
+
+        // 引数なし呼出し: name
+        return new ProcCall(name, List.of(), idTok.lineNo);
+    }
+
+    // 入出力文 := "readln" [ "(" 変数の並び ")" ] | "writeln" [ "(" 式の並び ")" ]
+    private Stmt parseIOStmt() {
+    	// "readln" [ "(" 変数の並び ")" ]
+        if (at("SREADLN")) {
+            var tok = expectRet("SREADLN");
+            List<LValue> vars = new ArrayList<>();
+            if (match("SLPAREN")) {
+                vars.add(parseLValue());
+                while (match("SCOMMA")) vars.add(parseLValue());
+                expect("SRPAREN");
+            }
+            return new Readln(vars, tok.lineNo);
+        } else {
+        // "writeln" [ "(" 式の並び ")" ]
+            var tok = expectRet("SWRITELN");
+            List<Expr> exprs = new ArrayList<>();
+            if (match("SLPAREN")) {
+                exprs.add(parseExpr());
+                while (match("SCOMMA")) exprs.add(parseExpr());
+                expect("SRPAREN");
+            }
+            return new Writeln(exprs, tok.lineNo);
+        }
+    }
+
+    // 左辺 := 変数（純変数 / 添字付き）
+    private LValue parseLValue() {
+        var id = expectRet("SIDENTIFIER");
+        // 添字付き
+        if (match("SLBRACKET")) {
+            Expr idx = parseExpr();
+            expect("SRBRACKET");
+            return new ArrayAccess(id.name, idx, id.lineNo);
+        }
+        // 純変数
+        return new Var(id.name, id.lineNo);
+    }
+
+    // 変数宣言 := [ "var" 変数宣言の並び ]
+    private List<VarDecl> parseVarDeclPart() {
+        List<VarDecl> vars = new ArrayList<>();
+        if (match("SVAR")) {
+            do {
+                vars.add(parseVarDeclLine());
+                expect("SSEMICOLON");
+            } while (at("SIDENTIFIER"));
+        }
+        return vars;
+    }
+
+    // 変数宣言の並び := 変数名の並び ":" 型 ";" { 変数名の並び ":" 型 ";" }
+    private VarDecl parseVarDeclLine() {
+        int line = ts.peek().lineNo;
+        List<String> names = parseIdentList();
+        expect("SCOLON");
+        TypeNode ty = parseType();
+        return new VarDecl(names, ty, line);
+    }
+
+    // 変数名の並び := 識別子 { "," 識別子 }
+    private List<String> parseIdentList() {
+        List<String> xs = new ArrayList<>();
+        xs.add(expectRet("SIDENTIFIER").name);
+        while (match("SCOMMA")) xs.add(expectRet("SIDENTIFIER").name);
+        return xs;
+    }
+
+    // 型 := 標準型 | 配列型
+    // 標準型 := "integer" | "char" | "boolean"
+    // 配列型 := "array" "[" 整数 ".." 整数 "]" "of" 標準型
+    private TypeNode parseType() {
+        int line = ts.peek().lineNo;
+        // 標準型
+        if (match("SINTEGER")) return BuiltinType.INTEGER;
+        if (match("SCHAR"))    return BuiltinType.CHAR;
+        if (match("SBOOLEAN")) return BuiltinType.BOOLEAN;
+
+        // 配列型
+        if (match("SARRAY")) {
+            expect("SLBRACKET");
+            long lower = parseInteger();   // 添字の最小値
+            expect("SRANGE");              // ".."
+            long upper = parseInteger();   // 添字の最大値
+            expect("SRBRACKET");
+            expect("SOF");
+            BuiltinType elem = BuiltinType.INTEGER;
+            if (match("SINTEGER"))      elem = BuiltinType.INTEGER;
+            else if (match("SCHAR"))    elem = BuiltinType.CHAR;
+            else if (match("SBOOLEAN")) elem = BuiltinType.BOOLEAN;
+            else fail();
+            return new ArrayType(lower, upper, elem, line);
+        }
+        fail(); return null;
+    }
+
+    // 整数 := [ 符号 ] 符号なし整数
+    private long parseInteger() {
+        boolean neg = false;
+        if (match("SPLUS")) { /* + は無視 */ }
+        else if (match("SMINUS")) neg = true;
+        var c = expectRet("SCONSTANT");
+        long v = Long.parseLong(c.name);
+        return neg ? -v : v;
+    }
+
+    // 副プログラム宣言群 := { 副プログラム宣言 ";" }
+    // 副プログラム宣言 := 副プログラム頭部 変数宣言 複合文
+    // 副プログラム頭部 := "procedure" 手続き名 仮パラメータ ";"
+    private List<ProcedureDecl> parseProcDecls() {
+        List<ProcedureDecl> procs = new ArrayList<>();
+        while (match("SPROCEDURE")) {
+            var nameTok = expectRet("SIDENTIFIER");
+            List<Param> params = parseParamsOpt();
+            expect("SSEMICOLON");
+            List<VarDecl> locals = parseVarDeclPart();
+            Compound body = parseCompound();
+            expect("SSEMICOLON");
+            procs.add(new ProcedureDecl(nameTok.name, params, locals, body, nameTok.lineNo));
+        }
+        return procs;
+    }
+
+    // 仮パラメータ := [ "(" 仮パラメータの並び ")" ]
+    private List<Param> parseParamsOpt() {
+        List<Param> ps = new ArrayList<>();
+        if (match("SLPAREN")) {
+            if (!at("SRPAREN")) {
+                parseParamGroupInto(ps);
+                while (match("SSEMICOLON")) parseParamGroupInto(ps);
+            }
+            expect("SRPAREN");
+        }
+        return ps;
+    }
+
+    // 仮パラメータの並び := 識別子の並び ":" 標準型 { ";" 識別子の並び ":" 標準型 }
+    private void parseParamGroupInto(List<Param> out) {
+        int line = ts.peek().lineNo;
+        List<String> names = parseIdentList();
+        expect("SCOLON");
+        BuiltinType ty;
+        if (match("SINTEGER"))      ty = BuiltinType.INTEGER;
+        else if (match("SCHAR"))    ty = BuiltinType.CHAR;
+        else if (match("SBOOLEAN")) ty = BuiltinType.BOOLEAN;
+        else { fail(); return; }
+        out.add(new Param(names, ty, line));
+    }
+
+    // 式 := 単純式 [ 関係演算子 単純式 ]
+    // 関係演算子 := "=" | "<>" | "<" | "<=" | ">" | ">="
+    private Expr parseExpr() {
+        Expr left = parseSimpleExpr();
+        if (atAny("SEQUAL","SNOTEQUAL","SLESS","SLESSEQUAL","SGREAT","SGREATEQUAL")) {
+            var opTok = expectAny("SEQUAL","SNOTEQUAL","SLESS","SLESSEQUAL","SGREAT","SGREATEQUAL");
+            Op op = switch (opTok.kind) {
+                case "SEQUAL"      -> Op.EQ;
+                case "SNOTEQUAL"   -> Op.NEQ;
+                case "SLESS"       -> Op.LT;
+                case "SLESSEQUAL"  -> Op.LE;
+                case "SGREAT"      -> Op.GT;
+                case "SGREATEQUAL" -> Op.GE;
+                default -> throw new AssertionError();
+            };
+            Expr right = parseSimpleExpr();
+            return new Binary(op, left, right, opTok.lineNo);
+        }
+        return left;
+    }
+
+    // =========================================
+    // 単純式 := [ 符号 ] 項 { 加法演算子 項 }
+    // 加法演算子 := "+" | "-" | "or"
+    // =========================================
+    private Expr parseSimpleExpr() {
+        // 先頭符号（単項マイナスのみAST化、＋は無視）
+        boolean neg = false; int line = ts.peek().lineNo;
+        if (match("SPLUS")) { /* 無視 */ }
+        else if (match("SMINUS")) neg = true;
+
+        Expr e = parseTerm();
+        if (neg) e = new Unary(Op.NEG, e, line);
+
+        while (atAny("SPLUS","SMINUS","SOR")) {
+            var opTok = nextRet();
+            Op op = switch (opTok.kind) {
+                case "SPLUS"  -> Op.ADD;
+                case "SMINUS" -> Op.SUB;
+                case "SOR"    -> Op.OR;
+                default -> throw new AssertionError();
+            };
+            Expr r = parseTerm();
+            e = new Binary(op, e, r, opTok.lineNo);
+        }
+        return e;
+    }
+
+    // =========================================
+    // 項 := 因子 { 乗法演算子 因子 }
+    // 乗法演算子 := "*" | "/" | "div" | "mod" | "and"  （"/" も "div" も SDIVD）
+    // =========================================
+    private Expr parseTerm() {
+        Expr e = parseFactor();
+        while (atAny("SSTAR","SDIVD","SMOD","SAND")) {
+            var opTok = nextRet();
+            Op op = switch (opTok.kind) {
+                case "SSTAR" -> Op.MUL;
+                case "SDIVD" -> Op.DIV;
+                case "SMOD"  -> Op.MOD;
+                case "SAND"  -> Op.AND;
+                default -> throw new AssertionError();
+            };
+            Expr r = parseFactor();
+            e = new Binary(op, e, r, opTok.lineNo);
+        }
+        return e;
+    }
+
+    // =========================================
+    // 因子 := 変数 | 定数 | "(" 式 ")" | "not" 因子
+    // =========================================
+    private Expr parseFactor() {
+        // 変数（name / name "[" 式 "]"）
+        if (at("SIDENTIFIER")) {
+            var id = expectRet("SIDENTIFIER");
+            if (match("SLBRACKET")) {
+                Expr idx = parseExpr();
+                expect("SRBRACKET");
+                return new ArrayRef(id.name, idx, id.lineNo); // あなたの名前に合わせて
+            }
+            return new VarRef(id.name, id.lineNo);            // あなたの名前に合わせて
+        }
+        // 定数: 整数 / 文字列 / true / false
+        if (at("SCONSTANT")) {
+            var c = expectRet("SCONSTANT");
+            return new Literal(c.name, LitKind.INT, c.lineNo);
+        }
+        if (at("SSTRING")) {
+            var s = expectRet("SSTRING");
+            return new Literal(s.name, LitKind.STRING, s.lineNo);
+        }
+        if (at("STRUE")) {
+            var t = expectRet("STRUE");
+            return new Literal("true", LitKind.BOOL, t.lineNo);
+        }
+        if (at("SFALSE")) {
+            var f = expectRet("SFALSE");
+            return new Literal("false", LitKind.BOOL, f.lineNo);
+        }
+        // "(" 式 ")"
+        if (match("SLPAREN")) {
+            Expr e = parseExpr();
+            expect("SRPAREN");
+            return e;
+        }
+        // "not" 因子
+        if (at("SNOT")) {
+            var n = expectRet("SNOT");
+            Expr e = parseFactor();
+            return new Unary(Op.NOT, e, n.lineNo);
+        }
+        fail(); return null;
+    }
+
+    
+    
+    // トークンとの一致の真偽
+    private boolean at(String kind) {
+        return ts.peek().kind.equals(kind);
+    }
+    // 全トークンとの一致の真偽
+    private boolean atAny(String... kinds) {
+        String k = ts.peek().kind;
+        for (var s : kinds) {
+        	if (k.equals(s)) return true;
+        }
+        return false;
+    }
+    // トークンに一致するとき，文を更新
+    private boolean match(String kind) {
+        if (at(kind)) { 
+        	ts.advance(); 
+        	return true; 
+        }
+        return false;
+    }
+    // トークンに一致するとき，文を更新
+    // トークンに一致しないとき，Syntax error
+    private void expect(String kind) {
+        if (!match(kind)) fail();
+    }
+
+    private TsToken expectRet(String kind) {
+        if (at(kind)) { 
+        	var t = ts.peek(); 
+        	ts.advance(); 
+        	return t; 
+        } else {
+        	fail(); 
+        	return null;
+        }
+    }
+    //　全トークンに一致するとき，文を更新し，文を返す
+    // 全トークンには一致しないとき，Syntax error
+    private TsToken expectAny(String... kinds) {
+        String k = ts.peek().kind;
+        for (var s : kinds) {
+        	if (k.equals(s)) { 
+        		var t = ts.peek(); 
+        		ts.advance(); 
+        		return t; 
+        	}
+        }
+        fail(); 
+        return null;
+    }
+    // 文を更新して返す
+    private TsToken nextRet() {
+        var t = ts.peek(); 
+        ts.advance(); 
+        return t;
+    }
+    // Syntax error
+    private void fail() {
+        throw new ParseError(ts.peek().lineNo);
+    }
+}
