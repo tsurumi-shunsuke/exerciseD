@@ -1,0 +1,7 @@
+package enshud.ast;
+
+public interface AstVisitor<R> {
+	R visitProgram(Program node);
+    R visitVarDecl(VarDecl node);
+    R visitProcDecl(ProcedureDecl node);
+}

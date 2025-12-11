@@ -1,9 +1,0 @@
-package enshud.ast;
-
-public class VarRef {
-
-	public VarRef() {
-		// TODO Auto-generated constructor stub
-	}
-
-}

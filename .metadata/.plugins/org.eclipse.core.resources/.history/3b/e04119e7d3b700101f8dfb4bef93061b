@@ -1,9 +1,0 @@
-package enshud.ast;
-
-public class Op {
-
-	public Op() {
-		// TODO Auto-generated constructor stub
-	}
-
-}

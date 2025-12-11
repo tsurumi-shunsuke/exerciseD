@@ -1,0 +1,3 @@
+package enshud.ast;
+
+public record Binary(Op op, Expr left, Expr right, int line) implements Expr {}

@@ -1,0 +1,11 @@
+package enshud.ast;
+
+/** (a,b: integer; c: boolean) の 1 グループ（名前並び + 標準型）。 */
+public record Param(java.util.List<String> names, BuiltinType type, int line) implements Node {
+
+	@Override
+	public <R> R accept(AstVisitor<R> v) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

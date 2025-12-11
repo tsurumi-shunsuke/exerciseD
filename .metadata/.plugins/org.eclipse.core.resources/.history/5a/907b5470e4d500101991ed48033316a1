@@ -1,0 +1,9 @@
+package enshud.ast;
+
+public record Binary(Op op, Expr left, Expr right, int line) implements Expr {
+
+	@Override
+	public <R> R accept(AstVisitor<R> v) {
+		// TODO Auto-generated method stub
+		return null;
+	}}

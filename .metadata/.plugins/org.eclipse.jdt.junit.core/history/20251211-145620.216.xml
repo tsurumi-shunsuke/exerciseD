@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="UTF-8"?><testrun name="CheckerTest" project="enshud" tests="38" started="38" failures="28" errors="0" ignored="0">
+  <testsuite name="enshud.s3.checker.CheckerTest" time="0.001" displayname="CheckerTest" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]">
+    <testcase name="testNormal01" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal01()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal01()]"/>
+    <testcase name="testNormal02" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal02()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal02()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line5"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line5"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal02(CheckerTest.java:48)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal03" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal03()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal03()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line5"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line5"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal03(CheckerTest.java:54)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal04" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal04()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal04()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line6"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line6"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal04(CheckerTest.java:60)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal05" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal05()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal05()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line6"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line6"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal05(CheckerTest.java:66)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal06" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal06()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal06()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line5"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line5"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal06(CheckerTest.java:72)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal07" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal07()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal07()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line5"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line5"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal07(CheckerTest.java:78)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal08" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal08()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal08()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line7"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line7"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal08(CheckerTest.java:84)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal09" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal09()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal09()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line8"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line8"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal09(CheckerTest.java:90)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal10" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal10()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal10()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line8"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line8"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal10(CheckerTest.java:96)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal11" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal11()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal11()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line10"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line10"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal11(CheckerTest.java:102)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal12" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal12()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal12()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line10"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line10"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal12(CheckerTest.java:108)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal13" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal13()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal13()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line9"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line9"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal13(CheckerTest.java:114)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal14" classname="enshud.s3.checker.CheckerTest" time="0.001" displayname="testNormal14()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal14()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line13"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line13"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal14(CheckerTest.java:120)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal15" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal15()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal15()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line8"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line8"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal15(CheckerTest.java:126)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal16" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal16()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal16()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line9"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line9"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal16(CheckerTest.java:132)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal17" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal17()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal17()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line9"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line9"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal17(CheckerTest.java:138)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal18" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal18()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal18()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line7"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line7"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal18(CheckerTest.java:144)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal19" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal19()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal19()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line12"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line12"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal19(CheckerTest.java:150)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testNormal20" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testNormal20()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testNormal20()]">
+      <failure>
+        <expected>"OK"</expected>
+        <actual>"Semantic error: line12"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "OK"&#13;
+ but was: "Semantic error: line12"&#13;
+	at enshud.s3.checker.CheckerTest.testNormal20(CheckerTest.java:156)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testSemerr01" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSemerr01()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSemerr01()]">
+      <failure>
+        <expected>"Semantic error: line 6"</expected>
+        <actual>"Semantic error: line6"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "Semantic error: line 6"&#13;
+ but was: "Semantic error: line6"&#13;
+	at enshud.s3.checker.CheckerTest.testSemerr01(CheckerTest.java:214)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testSemerr02" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSemerr02()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSemerr02()]">
+      <failure>
+        <expected>"Semantic error: line 23"</expected>
+        <actual>"Semantic error: line10"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "Semantic error: line 23"&#13;
+ but was: "Semantic error: line10"&#13;
+	at enshud.s3.checker.CheckerTest.testSemerr02(CheckerTest.java:220)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testSemerr03" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSemerr03()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSemerr03()]">
+      <failure>
+        <expected>"Semantic error: line 29"</expected>
+        <actual>"Semantic error: line10"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "Semantic error: line 29"&#13;
+ but was: "Semantic error: line10"&#13;
+	at enshud.s3.checker.CheckerTest.testSemerr03(CheckerTest.java:226)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testSemerr04" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSemerr04()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSemerr04()]">
+      <failure>
+        <expected>"Semantic error: line 29"</expected>
+        <actual>"Semantic error: line10"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "Semantic error: line 29"&#13;
+ but was: "Semantic error: line10"&#13;
+	at enshud.s3.checker.CheckerTest.testSemerr04(CheckerTest.java:232)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testSemerr05" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSemerr05()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSemerr05()]">
+      <failure>
+        <expected>"Semantic error: line 30"</expected>
+        <actual>"Semantic error: line10"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "Semantic error: line 30"&#13;
+ but was: "Semantic error: line10"&#13;
+	at enshud.s3.checker.CheckerTest.testSemerr05(CheckerTest.java:238)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testSemerr06" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSemerr06()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSemerr06()]">
+      <failure>
+        <expected>"Semantic error: line 31"</expected>
+        <actual>"Semantic error: line10"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "Semantic error: line 31"&#13;
+ but was: "Semantic error: line10"&#13;
+	at enshud.s3.checker.CheckerTest.testSemerr06(CheckerTest.java:244)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testSemerr07" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSemerr07()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSemerr07()]">
+      <failure>
+        <expected>"Semantic error: line 31"</expected>
+        <actual>"Semantic error: line10"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "Semantic error: line 31"&#13;
+ but was: "Semantic error: line10"&#13;
+	at enshud.s3.checker.CheckerTest.testSemerr07(CheckerTest.java:250)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testSemerr08" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSemerr08()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSemerr08()]">
+      <failure>
+        <expected>"Semantic error: line 34"</expected>
+        <actual>"Semantic error: line10"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "Semantic error: line 34"&#13;
+ but was: "Semantic error: line10"&#13;
+	at enshud.s3.checker.CheckerTest.testSemerr08(CheckerTest.java:256)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+    <testcase name="testSynerr01" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSynerr01()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSynerr01()]"/>
+    <testcase name="testSynerr02" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSynerr02()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSynerr02()]"/>
+    <testcase name="testSynerr03" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSynerr03()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSynerr03()]"/>
+    <testcase name="testSynerr04" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSynerr04()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSynerr04()]"/>
+    <testcase name="testSynerr05" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSynerr05()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSynerr05()]"/>
+    <testcase name="testSynerr06" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSynerr06()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSynerr06()]"/>
+    <testcase name="testSynerr07" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSynerr07()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSynerr07()]"/>
+    <testcase name="testSynerr08" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testSynerr08()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testSynerr08()]"/>
+    <testcase name="testXInputFileNotFound" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testXInputFileNotFound()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testXInputFileNotFound()]"/>
+    <testcase name="testZCheating" classname="enshud.s3.checker.CheckerTest" time="0.0" displayname="testZCheating()" uniqueid="[engine:junit-jupiter]/[class:enshud.s3.checker.CheckerTest]/[method:testZCheating()]">
+      <failure>
+        <expected>"Semantic error: line 34"</expected>
+        <actual>"Semantic error: line10"</actual>
+        org.opentest4j.AssertionFailedError: &#13;
+expected: "Semantic error: line 34"&#13;
+ but was: "Semantic error: line10"&#13;
+	at enshud.s3.checker.CheckerTest.testZCheating(CheckerTest.java:290)&#13;
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)&#13;
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:317)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1144)&#13;
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:642)&#13;
+	at java.base/java.lang.Thread.run(Thread.java:1583)&#13;
+&#13;
+
+      </failure>
+    </testcase>
+  </testsuite>
+</testrun>

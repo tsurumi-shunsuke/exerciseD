@@ -1,0 +1,4 @@
+package enshud.ast;
+
+/** 標準型: integer | char | boolean */
+public enum BuiltinType implements TypeNode { INTEGER, CHAR, BOOLEAN }

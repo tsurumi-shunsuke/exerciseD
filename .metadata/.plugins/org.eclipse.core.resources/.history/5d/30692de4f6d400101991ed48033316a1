@@ -1,0 +1,6 @@
+package enshud.ast;
+
+public interface AstVisitor<R> {
+	R visitProgram(Program node);
+	
+}

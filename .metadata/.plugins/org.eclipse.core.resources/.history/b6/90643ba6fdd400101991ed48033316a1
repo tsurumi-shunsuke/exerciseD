@@ -1,0 +1,4 @@
+package enshud.ast;
+
+/** while 式 do 複合文 ; 本体は必ず Compound */
+public record WhileS(Expr cond, Compound body, int line) implements Stmt {}

@@ -1,0 +1,17 @@
+package enshud.ast;
+
+public interface AstVisitor<R> {
+	R visitProgram(Program node);
+	R visitBlock(Block node);
+	R visitCompound(Compound node);
+    R visitVarDecl(VarDecl node);
+    R visitProcedureDecl(ProcedureDecl node);
+    R visitParam(Param node);
+    R visitAssign(Assign node);
+    R visitProcCall(ProcCall node);
+    R visitReadln(Readln node);
+    R visitWriteln(Writeln node);
+    R visitIfS(IfS node);
+    R visitWhilnS(WhileS node);
+    R visitLArrayAccess(ArrayAccess node);
+}

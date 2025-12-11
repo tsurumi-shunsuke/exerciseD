@@ -1,0 +1,10 @@
+package enshud.ast;
+
+/** program 名 ; block compound . */
+public record Program(String name, Block block, Compound main, int line) extends Node {
+
+	@Override
+	public <R> R accept(AstVisitor<R> v) {
+		return (R) v.visitProgram(this);
+	}
+}

@@ -1,0 +1,9 @@
+package enshud.s3.checker;
+
+public class Semantic {
+
+	public Semantic() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

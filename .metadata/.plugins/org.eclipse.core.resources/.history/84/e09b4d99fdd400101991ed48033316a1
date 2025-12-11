@@ -1,0 +1,3 @@
+package enshud.ast;
+
+public record Unary(Op op, Expr expr, int line) implements Expr {}

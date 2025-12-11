@@ -1,0 +1,11 @@
+package enshud.ast;
+
+/** 式中の変数参照（純変数） */
+public record VarRef(String name, int line) implements Expr {
+
+	@Override
+	public <R> R accept(AstVisitor<R> v) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

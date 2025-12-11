@@ -1,0 +1,106 @@
+package enshud.s3.checker;
+import enshud.ast.*;
+
+
+public class Semantic implements AstVisitor<Type>{
+	private final SymbolTable symtab = new SymbolTable();
+	
+	public Semantic(Program prog) {
+		symtab.enterScope();
+		// ASTに意味解析器Semanticを渡し，visitを返してもらう（program以下の意味解析）
+		prog.accept(this);
+		symtab.exitScope();
+	}
+
+	@Override
+	public Type visitProgram(Program node) {
+		if (node.block() != null) {
+			// blockの意味解析
+			node.block().accept(this);
+		}
+		if (node.main() != null) {
+			// compoundの意味解析
+			node.main().accept(this);
+		}
+		return null;
+	}
+
+	@Override
+	public Type visitBlock(Block node) {
+		if (node.vars() != null) {
+			for (VarDecl v : node.vars()) {
+				// varDeclの意味解析
+				v.accept(this);
+			}
+		}
+		if (node.procs() != null) {
+			for (ProcedureDecl p : node.procs()) {
+				// procedureDeclの意味解析
+				p.accept(this);
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Type visitCompound(Compound node) {
+		System.out.println("visitCompound is valid.");
+		return null;
+	}
+
+	@Override
+	public Type visitVarDecl(VarDecl node) {
+		Type t = resolveType(node.type());
+		for (String name : node.names()) {
+			Symbol sym = new Symbol();
+			sym.name = name;
+			sym.kind = SymbolKind.VAR;
+			sym.type = t;
+			sym.line = node.line();
+			symtab.declare(sym);
+		}
+		return null;
+	}
+
+	@Override
+	public Type visitProcedureDecl(ProcedureDecl node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	
+	
+	// TypeNode → Typeに変換
+	private Type resolveType(TypeNode tnode) {
+	    if (tnode instanceof BuiltinType bt) {
+	        String name = bt.name();
+	        return switch (name) {
+	            case "integer" -> Type.integer();
+	            case "char"    -> Type.charType();
+	            case "boolean" -> Type.booleanType();
+	            default -> throw new CheckError(bt.line());
+	        };
+
+	    } else if (tnode instanceof ArrayType at) {
+	        // 添字範囲のチェックなどもここでできる
+	        long lower = at.lower();
+	        long upper = at.upper();
+	        if (lower > upper) {
+	            throw new CheckError(at.line());
+	        }
+
+	        // 要素型はここでは標準型だけに絞る例
+	        BuiltinType elem = at.elem();
+	        BasicType base = switch (elem.name()) {
+	            case "integer" -> BasicType.INTEGER;
+	            case "char"    -> BasicType.CHAR;
+	            case "boolean" -> BasicType.BOOLEAN;
+	            default -> throw new CheckError(elem.line());
+	        };
+
+	        return Type.arrayOf(base, lower, upper);
+	    }
+	}
+
+	
+}

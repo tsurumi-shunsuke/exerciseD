@@ -1,9 +1,0 @@
-package enshud.ast;
-
-public class Expr {
-
-	public Expr() {
-		// TODO Auto-generated constructor stub
-	}
-
-}

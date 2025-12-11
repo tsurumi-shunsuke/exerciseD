@@ -1,0 +1,306 @@
+package enshud.s3.checker;
+import enshud.ast.*;
+
+
+public class Semantic implements AstVisitor<Type>{
+	private final SymbolTable symtab = new SymbolTable();
+	
+	public Semantic(Program prog) {
+		symtab.enterScope();
+		// ASTに意味解析器Semanticを渡し，visitを返してもらう（program以下の意味解析）
+		prog.accept(this);
+		symtab.exitScope();
+	}
+
+	@Override
+	public Type visitProgram(Program node) {
+		if (node.block() != null) {
+			// blockの意味解析
+			node.block().accept(this);
+		}
+		if (node.main() != null) {
+			// compoundの意味解析
+			node.main().accept(this);
+		}
+		return null;
+	}
+
+	@Override
+	public Type visitBlock(Block node) {
+		for (VarDecl v : node.vars()) {
+			// varDeclの意味解析
+			v.accept(this);
+		}
+		for (ProcedureDecl p : node.procs()) {
+			// procedureDeclの意味解析
+			p.accept(this);
+		}
+		return null;
+	}
+
+	@Override
+	public Type visitCompound(Compound node) {
+		// Stmtを実装している各クラスが自身のacceptを呼ぶ
+		for (Stmt s : node.stmts()) {
+			s.accept(this);
+		}
+		return null;
+	}
+
+	@Override
+	public Type visitVarDecl(VarDecl node) {
+		Type t = resolveType(node.type(), node.line());
+		for (String name : node.names()) {
+			Symbol sym = new Symbol();
+			sym.name = name;
+			sym.kind = SymbolKind.VAR;
+			sym.type = t;
+			sym.line = node.line();
+			// 変数名の重複チェック
+			symtab.declare(sym);
+		}
+		return null;
+	}
+
+	@Override
+	public Type visitProcedureDecl(ProcedureDecl node) {
+		Symbol procSym = new Symbol();
+		procSym.name = node.name();
+		procSym.kind = SymbolKind.PROC;
+		procSym.type = null;  // 手続きは型なし
+		procSym.line = node.line();
+		procSym.paramTypes = new java.util.ArrayList<Type>();
+		// 手続き名の重複チェック
+		symtab.declare(procSym);
+		
+		// 手続き用のスコープを展開
+		symtab.enterScope();
+		
+		// paramの意味解析
+		for (Param p : node.params()) {
+			Type t = resolveType(p.type(), p.line());
+			procSym.paramTypes.add(t);
+			p.accept(this);
+		}
+		for (VarDecl v : node.locals()) {
+			// varDeclの意味解析
+			v.accept(this);  // visitVarDecl()が返される
+		}
+		if (node.body() != null) {
+			// compoundの意味解析
+			node.body().accept(this);
+		}
+		
+		symtab.exitScope();
+		return null;
+	}
+
+	@Override
+	public Type visitParam(Param node) {
+		Type t = resolveType(node.type(), node.line());
+		for (String name : node.names()) {
+			Symbol paramSym = new Symbol();
+			paramSym.name = name;
+			paramSym.kind = SymbolKind.PARAM;
+			paramSym.type = t;
+			paramSym.line = node.line();
+			symtab.declare(paramSym);	
+		}
+		return null;
+	}
+	
+	@Override
+	public Type visitAssign(Assign node) {
+		Type lhsType = node.lhs().accept(this);
+		Type rhsType = node.rhs().accept(this);
+		
+		// 左辺が配列型の変数名の場合エラー
+		if (lhsType.isArray) {
+			throw new CheckError(node.line());
+		}
+		
+		// 左辺と右辺の型一致チェック
+		if (!lhsType.equals(rhsType)) {
+			throw new CheckError(node.line());
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public Type visitVar(Var node) {
+		Symbol s = symtab.lookup(node.name(), node.line());
+		// 変数or仮引数以外ならエラー
+		if (s.kind != SymbolKind.VAR && s.kind != SymbolKind.PARAM) {
+			throw new CheckError(node.line());
+		}
+		return s.type;
+	}
+	
+	@Override
+	public Type visitArrayAccess(ArrayAccess node) {
+		Symbol s = symtab.lookup(node.name(), node.line());
+		// int x; x[0] = 1のようなパターンはエラー
+		if (!s.type.isArray) {
+			throw new CheckError(node.line());
+		}
+		
+		Type indexType = node.index().accept(this);
+		// 添字式がintegerでなければエラー
+		if (!indexType.isInteger()) {
+			throw new CheckError(node.line());
+		}
+		
+		// 配列型の時，visitAssignで型の一致を見れなくなるため，ここでは配列の要素の型を示すTypeを返す
+		return s.type.elementType();
+	}
+	
+	@Override
+	public Type visitBinary(Binary node) {
+		Type left = node.left().accept(this);
+		Type right = node.right().accept(this);
+		Op op = node.op();
+		
+		if (left.isArray || right.isArray) {
+			throw new CheckError(node.line());
+		}
+		
+		switch (op) {
+			// 加法・乗法の算術演算
+			case ADD, SUB, MUL, DIV, MOD -> {
+				if (!left.isInteger() || !right.isInteger()) {
+					throw new CheckError(node.line());
+				}
+				return Type.integerType();
+			}
+			// 比較演算・等値・不等値
+			case LT, LE, GT, GE, EQ, NEQ -> {
+				if (!left.equals(right)) {
+					throw new CheckError(node.line());
+				}
+				return Type.booleanType();
+			}
+			// 比較演算
+			case AND, OR -> {
+				if (!left.isBoolean() || !right.isBoolean()) {
+					throw new CheckError(node.line());
+				}
+				return Type.booleanType();
+			}
+			default -> {
+				throw new CheckError(node.line());
+			}
+		}
+	}
+
+	@Override
+	public Type visitUnary(Unary node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Type visitLiteral(Literal node) {
+		switch (node.kind()) {
+			case INT:
+				return Type.integerType();
+			case BOOL:
+				return Type.booleanType();
+			case STRING:
+				int len = node.lexeme().length();
+				// 文字列の長さでchar型かchar型配列（文字列）か決定
+				if (len == 1) {
+					return Type.charType();
+				} else {
+					return Type.arrayOf(BasicType.CHAR, 0, len - 1);
+				}
+			default:
+				throw new CheckError(node.line());
+		}
+	}
+
+	@Override
+	public Type visitVarRef(VarRef node) {
+	    Symbol s = symtab.lookup(node.name(), node.line());
+	    if (s.kind != SymbolKind.VAR && s.kind != SymbolKind.PARAM) {
+	        throw new CheckError(node.line());
+	    }
+	    return s.type;
+	}
+
+	@Override
+	public Type visitArrayRef(ArrayRef node) {
+	    Symbol s = symtab.lookup(node.name(), node.line());
+	    if (!s.type.isArray) {
+	        throw new CheckError(node.line());
+	    }
+	    Type indexType = node.index().accept(this);
+	    if (!indexType.isInteger()) {
+	        throw new CheckError(node.line());
+	    }
+	    return s.type.elementType();
+	}
+
+	@Override
+	public Type visitProcCall(ProcCall node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Type visitReadln(Readln node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Type visitWriteln(Writeln node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Type visitIfS(IfS node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Type visitWhileS(WhileS node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
+	
+	// TypeNode → Typeに変換
+	private Type resolveType(TypeNode tnode, int declLine) {
+	    if (tnode instanceof BuiltinType bt) {
+	        return switch (bt) {
+	            case INTEGER -> Type.integerType();
+	            case CHAR    -> Type.charType();
+	            case BOOLEAN -> Type.booleanType();
+	            default -> throw new CheckError(declLine);
+	        };
+
+	    } else if (tnode instanceof ArrayType at) {
+	        // 添字範囲のチェック
+	        long lower = at.lower();
+	        long upper = at.upper();
+	        if (lower > upper) {
+	            throw new CheckError(at.line());
+	        }
+	        
+	        BuiltinType elem = at.elem();
+	        BasicType base = switch (elem) {
+	            case INTEGER -> BasicType.INTEGER;
+	            case CHAR    -> BasicType.CHAR;
+	            case BOOLEAN -> BasicType.BOOLEAN;
+	            default -> throw new CheckError(declLine);
+	        };
+
+	        return Type.arrayOf(base, lower, upper);
+	    }
+	    throw new IllegalStateException("Unknown TypeNode: " + tnode);
+	}
+}

@@ -1,0 +1,4 @@
+package enshud.ast;
+
+/** x,y: integer; の1本分。 */
+public record VarDecl(java.util.List<String> names, TypeNode type, int line) implements Node {}

@@ -1,0 +1,7 @@
+package enshud.s3.checker;
+
+public enum BasicType {
+    INTEGER,
+    CHAR,
+    BOOLEAN
+}

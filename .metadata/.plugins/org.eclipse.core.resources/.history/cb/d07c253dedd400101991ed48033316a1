@@ -1,0 +1,16 @@
+package enshud.s2.parser;
+
+public class TsToken {
+	final String name;
+	final String kind;
+	final int 	 id;
+	final int 	 lineNo;
+	
+	// 入力文の4つの要素をそれぞれ保存する
+	TsToken(String name, String kind, int id, int lineNo) {
+		this.name   = name;
+		this.kind   = kind;
+		this.id     = id;
+		this.lineNo = lineNo;
+	}
+}

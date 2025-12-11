@@ -1,0 +1,13 @@
+package enshud.s3.checker;
+import enshud.ast.Program;
+
+
+public class Semantic {
+
+	public Semantic(Program prog) {
+		private final SymbolTable symtab = new SymbolTable();
+		prog.accept(this);
+		symtab.exitScope();
+	}
+
+}

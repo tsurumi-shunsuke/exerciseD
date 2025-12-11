@@ -1,0 +1,35 @@
+package enshud.s3.checker;
+import enshud.ast.*;
+
+
+public class Semantic implements AstVisitor<Type>{
+	private final SymbolTable symtab = new SymbolTable();
+	
+	public Semantic(Program prog) {
+		symtab.enterScope();
+		prog.accept(this);
+		symtab.exitScope();
+	}
+
+	@Override
+	public Type visitProgram(Program node) {
+		if (node.block() != null) {
+			node.block().accept(this);
+		}
+		System.out.println("visitProgram done.");
+		return null;
+	}
+
+	@Override
+	public Type visitVarDecl(VarDecl node) {
+		System.out.println("visitVarDecl done.");
+		return null;
+	}
+
+	@Override
+	public Type visitProcedureDecl(ProcedureDecl node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

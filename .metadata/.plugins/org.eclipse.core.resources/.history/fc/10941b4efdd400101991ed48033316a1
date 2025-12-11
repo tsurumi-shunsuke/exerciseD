@@ -1,0 +1,4 @@
+package enshud.ast;
+
+/** 左辺 := 式 ; */
+public record Assign(LValue lhs, Expr rhs, int line) implements Stmt {}

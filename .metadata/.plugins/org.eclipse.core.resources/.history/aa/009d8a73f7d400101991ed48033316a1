@@ -1,0 +1,4 @@
+package enshud.ast;
+
+/** 添字付き変数: name [ indexExpr ] */
+public record ArrayAccess(String name, Expr index, int line) implements LValue {}
