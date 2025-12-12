@@ -1,0 +1,9 @@
+package enshud.s3.checker;
+
+public class Symbolkind {
+
+	public Symbolkind() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

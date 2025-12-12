@@ -1,9 +1,0 @@
-package enshud.ast;
-
-public class WhileS {
-
-	public WhileS() {
-		// TODO Auto-generated constructor stub
-	}
-
-}

@@ -1,9 +1,0 @@
-package enshud.ast;
-
-public class Literal {
-
-	public Literal() {
-		// TODO Auto-generated constructor stub
-	}
-
-}

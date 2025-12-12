@@ -1,0 +1,10 @@
+package enshud.s3.checker;
+
+public class CheckError {
+	public final int lineNo;
+	
+	public CheckError(int line) {
+		this.lineNo = line;
+	}
+
+}

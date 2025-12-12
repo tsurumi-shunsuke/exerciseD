@@ -1,0 +1,11 @@
+package enshud.ast;
+
+/** 純変数（識別子） */
+public record Var(String name, int line) implements LValue {
+
+	@Override
+	public <R> R accept(AstVisitor<R> v) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

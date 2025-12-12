@@ -1,9 +1,0 @@
-package enshud.ast;
-
-public class ArrayRef {
-
-	public ArrayRef() {
-		// TODO Auto-generated constructor stub
-	}
-
-}

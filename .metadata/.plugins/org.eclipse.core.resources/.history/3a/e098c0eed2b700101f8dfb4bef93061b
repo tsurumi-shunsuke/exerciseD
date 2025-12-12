@@ -1,9 +1,0 @@
-package enshud.ast;
-
-public class ArrayType {
-
-	public ArrayType() {
-		// TODO Auto-generated constructor stub
-	}
-
-}

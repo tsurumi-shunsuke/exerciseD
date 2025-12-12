@@ -1,0 +1,57 @@
+package enshud.s3.checker;
+
+public class Type {
+    // INTEGER, CHAR, BOOLEAN
+    public final BasicType base;
+    public final boolean isArray;
+    public final long lower;
+    public final long upper;
+
+    private Type(BasicType base, boolean isArray, long lower, long upper) {
+        this.base = base;
+        this.isArray = isArray;
+        this.lower = lower;
+        this.upper = upper;
+    }
+
+    // BuiltinType用
+    public static Type integerType() { return new Type(BasicType.INTEGER, false, 0, 0); }
+    public static Type charType() { return new Type(BasicType.CHAR, false, 0, 0); }
+    public static Type booleanType() { return new Type(BasicType.BOOLEAN, false, 0, 0); }
+
+    // ArrayType用
+    public static Type arrayOf(BasicType base, long lower, long upper) { return new Type(base, true, lower, upper); }
+
+    public boolean isInteger() { return !isArray && base == BasicType.INTEGER; }
+    public boolean isChar() { return !isArray && base == BasicType.CHAR; }
+    public boolean isBoolean() { return !isArray && base == BasicType.BOOLEAN; }
+
+    // 配列型の元の型を返す
+    public Type elementType() {
+        if (!isArray) {
+            throw new IllegalStateException("not an array type");
+        }
+        return switch (base) {
+            case INTEGER -> Type.integerType();
+            case CHAR    -> Type.charType();
+            case BOOLEAN -> Type.booleanType();
+        };
+    }
+    
+    // 型の一致チェック
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Type t)) return false;
+        if (this.base != t.base) return false;
+        if (this.isArray != t.isArray) return false;
+        if (!this.isArray) {
+            // スカラ型なら base と isArray だけ見ればよい
+            return true;
+        }
+        // 配列型なら境界も含めて一致判定
+        return this.lower == t.lower && this.upper == t.upper;
+    }
+
+
+}

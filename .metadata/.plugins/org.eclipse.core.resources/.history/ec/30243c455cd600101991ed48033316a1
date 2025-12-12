@@ -1,0 +1,35 @@
+package enshud.s3.checker;
+
+import java.util.*;
+
+public class SymbolTable {
+
+    // スタック
+    private Deque<Map<String, Symbol>> scopes = new ArrayDeque<>();
+
+    public void enterScope() {
+        scopes.push(new HashMap<>());
+    }
+
+    public void exitScope() {
+        scopes.pop();
+    }
+
+    public void declare(Symbol sym) {
+        Map<String, Symbol> top = scopes.peek();
+        if (top.containsKey(sym.name)) {
+            // 同じスコープで重複
+            throw new CheckError(sym.line);
+        }
+        top.put(sym.name, sym);
+    }
+
+    public Symbol lookup(String name, int line) {
+        for (Map<String, Symbol> scope : scopes) {
+            Symbol s = scope.get(name);
+            if (s != null) return s;
+        }
+        // 見つからなかったとき，未宣言
+        throw new CheckError(line);
+    }
+}
