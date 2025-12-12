@@ -1,4 +1,0 @@
-package enshud.ast;
-
-/** 純変数（識別子） */
-public record Var(String name, int line) implements LValue {}

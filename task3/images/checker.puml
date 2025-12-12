@@ -1,0 +1,53 @@
+@startuml checker
+skinparam classAttributeIconSize 0
+' top-down にして縦長寄りに
+top to bottom direction
+scale 0.8
+skinparam defaultFontSize 15
+skinparam classFontSize 18
+skinparam nodesep 3
+skinparam ranksep 3
+skinparam classPadding 4
+skinparam ArrowThickness 0.7
+
+' ====== 上段：ASTまわり ======
+interface Node
+interface AstVisitor
+class Program
+
+Node <|-- Program
+AstVisitor <|-- Semantic
+
+note bottom of Program
+  他のASTノードは省略
+  (Block, Compound, Expr, Stmt, ...)
+end note
+
+' ====== 中段：Checker / Semantic ======
+class Checker
+class Semantic
+
+Checker  --> Program  : uses AST
+Checker  --> Semantic : creates
+
+
+
+' ====== 下段：型・シンボル ======
+class SymbolTable
+class Symbol
+class Type
+class CheckError
+enum BasicType
+enum SymbolKind
+
+Semantic *-- SymbolTable
+Semantic ..> CheckError
+Semantic ..> Type
+Semantic ..> Symbol
+
+SymbolTable *-- Symbol
+Symbol      --> Type
+Type        --> BasicType
+Symbol      --> SymbolKind
+
+@enduml

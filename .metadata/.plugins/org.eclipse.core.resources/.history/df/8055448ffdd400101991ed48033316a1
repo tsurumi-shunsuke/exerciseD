@@ -1,4 +1,0 @@
-package enshud.ast;
-
-/** 手続き呼出し文: name [ "(" 式の並び ")" ] ; （引数なし許可） */
-public record ProcCall(String name, java.util.List<Expr> args, int line) implements Stmt {}

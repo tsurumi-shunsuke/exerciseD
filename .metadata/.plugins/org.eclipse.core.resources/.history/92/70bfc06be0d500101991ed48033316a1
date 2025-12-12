@@ -1,4 +1,0 @@
-package enshud.ast;
-
-public sealed interface Stmt extends Node
-  permits Assign, ProcCall, Readln, Writeln, Compound, IfS, WhileS {}

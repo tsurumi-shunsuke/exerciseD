@@ -1,4 +1,0 @@
-package enshud.ast;
-
-/** readln [ "(" 変数の並び ")" ] ; */
-public record Readln(java.util.List<LValue> vars, int line) implements Stmt {}

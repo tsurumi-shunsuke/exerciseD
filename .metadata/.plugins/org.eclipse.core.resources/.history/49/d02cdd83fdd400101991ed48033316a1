@@ -1,6 +1,0 @@
-package enshud.ast;
-
-/** 定数: 符号なし整数 | 文字列 | false | true
- *  符号は 単純式 で Unary(POS/NEG, ...) によって表現（整数は unsigned を保持）
- */
-public record Literal(String lexeme, LitKind kind, int line) implements Expr {}

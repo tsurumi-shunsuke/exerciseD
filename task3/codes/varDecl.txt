@@ -1,0 +1,12 @@
+public Type visitVarDecl(VarDecl node) {
+	Type t = resolveType(node.type(), node.line());
+	for (String name : node.names()) {
+		Symbol sym = new Symbol();
+		sym.name = name;
+		sym.kind = SymbolKind.VAR;
+		sym.type = t;
+		sym.line = node.line();
+		symtab.declare(sym);
+	}
+	return null;
+}

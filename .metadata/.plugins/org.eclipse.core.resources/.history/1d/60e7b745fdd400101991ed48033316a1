@@ -1,4 +1,0 @@
-package enshud.ast;
-
-/** 式中の配列要素参照 */
-public record ArrayRef(String name, Expr index, int line) implements Expr {}

@@ -1,4 +1,0 @@
-package enshud.ast;
-
-/** array [lower .. upper] of 標準型 ; lower/upper は 整数（符号付き）限定 */
-public record ArrayType(long lower, long upper, BuiltinType elem, int line) implements TypeNode {}

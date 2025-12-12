@@ -1,4 +1,0 @@
-package enshud.ast;
-
-/** program 名 ; block compound . */
-public record Program(String name, Block block, Compound main, int line) implements Node {}

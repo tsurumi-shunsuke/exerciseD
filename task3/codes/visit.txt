@@ -1,0 +1,16 @@
+public Semantic(Program prog) {
+	symtab.enterScope();
+	prog.accept(this);
+	symtab.exitScope();
+}
+
+public Type visitProgram(Program node) {
+	if (node.block() != null) node.block().accept(this);
+	if (node.main() != null) node.main().accept(this);
+	return null;
+}
+
+
+public record Program(String name, Block block, Compound main, int line) implements Node {
+	public <R> R accept(AstVisitor<R> v) return v.visitProgram(this);
+}

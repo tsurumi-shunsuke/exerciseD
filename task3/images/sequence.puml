@@ -1,0 +1,36 @@
+@startuml sequence
+skinparam defaultFontSize 17
+skinparam ArrowThickness 0.7
+skinparam sequenceMessageAlign center
+
+actor "Driver" as Driver
+participant "Checker" as Checker
+participant "Semantic" as Semantic
+participant "SymbolTable" as Symtab
+
+' ===== Checker の起動 =====
+Driver -> Checker : run(inputTsPath)
+
+
+' ===== 意味解析の開始 =====
+Checker -> Semantic : new Semantic(Program)
+activate Semantic
+
+Semantic -> Symtab : enterScope()
+
+' AST 全体の検査（詳細は省略）
+Semantic -> Symtab : declare()/lookup()\n(各種 visit* 内)
+... 型チェック・スコープ管理 ...
+
+Semantic -> Symtab : exitScope()
+deactivate Semantic
+
+' ===== 結果の返却 =====
+alt CheckError 発生
+  Semantic --> Checker : throw CheckError(line)
+  Checker --> Driver   : "Semantic error: line n"
+else 例外なし
+  Checker --> Driver   : "OK"
+end
+
+@enduml
