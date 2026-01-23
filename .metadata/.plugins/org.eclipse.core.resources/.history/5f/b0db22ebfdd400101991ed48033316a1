@@ -1,9 +1,0 @@
-package enshud.s3.checker;
-
-public class BasicType {
-
-	public BasicType() {
-		// TODO Auto-generated constructor stub
-	}
-
-}

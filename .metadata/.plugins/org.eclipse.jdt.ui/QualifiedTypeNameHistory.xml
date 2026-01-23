@@ -7,8 +7,8 @@
     <fullyQualifiedTypeName name="java.io.InputStreamReader"/>
     <fullyQualifiedTypeName name="java.io.FileInputStream"/>
     <fullyQualifiedTypeName name="java.io.File"/>
-    <fullyQualifiedTypeName name="enshud.ast.VarDecl"/>
     <fullyQualifiedTypeName name="java.util.ArrayList"/>
     <fullyQualifiedTypeName name="enshud.s3.checker.SymbolKind"/>
     <fullyQualifiedTypeName name="enshud.s3.checker.Type"/>
+    <fullyQualifiedTypeName name="enshud.ast.VarDecl"/>
 </qualifiedTypeNameHistroy>

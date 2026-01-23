@@ -1,0 +1,32 @@
+@startuml sequence
+hide footbox
+skinparam style strictuml
+
+actor User
+participant "Compiler" as C
+participant "TsSource" as TS
+participant "Syntax" as SY
+participant "Semantic" as SE
+participant "CodeGenerator" as CG
+participant "FileSystem\n(writeCas)" as FS
+
+User -> C : run(inputFile, outputFile)
+
+C -> TS : new TsSource(inputFile)
+C -> SY : new Syntax(TsSource)
+
+C -> SY : parseProgram()
+SY --> C : Program ast
+
+C -> SE : new Semantic(ast)
+
+C -> CG : new CodeGenerator()
+C -> CG : generate(ast)
+CG --> C : casLines (List<String>)
+
+C -> FS : writeCas(casLines, outputFile)
+FS --> C : 
+
+C --> User : "OK"
+
+@enduml

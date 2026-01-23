@@ -7,6 +7,7 @@
 \usepackage{tabularx}
 \usepackage{booktabs}
 \usepackage{multirow}
+\usepackage{comment}
 
 % 担当教員名
 \newcommand{\teacherName}{桝井 晃基}
@@ -21,7 +22,7 @@
 % 課題提出日
 \newcommand{\submitted}{\today}
 % 課題締め切り日
-\newcommand{\deadline}{2025年10月17日}
+\newcommand{\deadline}{2025年1月30日 23:59}
 
 \lstset{
     basicstyle = {\ttfamily},
@@ -50,7 +51,7 @@
 \begin{center}
 {\Huge\bfseries 情報科学演習D} \\
 \vspace{1cm}
-{\LARGE\bfseries 課題1}
+{\LARGE\bfseries 課題4}
 \vspace{5cm}
 
 {\large
@@ -72,14 +73,341 @@
 % \tableofcontents
 \newpage
 
-% \lstinputlisting[caption=サーバプログラムの接続手順, firstline=1, firstnumber=1, lastline=19, label=prog:server]{codes/server.txt}
+% コマンド一覧
+\begin{comment}
+    \lstinputlisting[caption=, firstline=1, firstnumber=1, lastline=, label=prog:]{codes/}
+\end{comment}
 
+\begin{comment}
+\begin{figure}[htb]
+    \centering
+    \caption{}
+    \includegraphics[]{}
+    \label{}
+\end{figure}
+\end{comment}
 
+% 以下本文開始
 \section{システムの仕様}
-\section{課題達成の方針と設計}
-\section{実装プログラム}
-\section{考察や工夫点}
-\section{感想}
+\verb|Compiler.run(String, String)| は第一引数で指定した \verb|ts| ファイルを読み込み，構文解析により \verb|AST| を生成した後，意味解析で整合性を検査し，問題がなければCASL IIコードを生成して第二引数で指定した \verb|cas| ファイルに出力する．
+出力時には生成コードの末尾に \verb|data/cas/lib.cas| を連結し，実行可能なCASL IIプログラムとする．
+入力に構文的または意味的誤りがある場合は，課題2,3と同形式のエラーメッセージを返して処理を終了する．
+入力ファイルが存在しない場合は \verb|"File not found"| を返す．正常終了時は \verb|"OK"| を返す．
 
+
+\section{課題達成の方針と設計}
+\subsection{全体の処理の流れ}
+コンパイラのクラス図を図\ref{fig:compiler}に示す．本課題では，既存の字句・構文・意味解析器を利用し，\verb|AST|を中間表現として\verb|CASL| IIコード生成までを一貫して実行する．
+また，コード生成では\verb|CodeGenerator|が\verb|AstVisitor|を実装し，\verb|AST|を走査して命令列を生成する（\verb|Visitor|パターン）．
+
+\begin{figure}[htb]
+    \centering
+    \caption{コンパイラのクラス図}
+    \includegraphics[width=130mm]{images/compiler/compiler.pdf}
+    \label{fig:compiler}
+\end{figure}
+
+実行時の処理手順を図\ref{fig:sequence}に示す．図\ref{fig:sequence}に対応する処理の流れは次のとおりである．
+\begin{enumerate}
+  \item \verb|Compiler.run()| が呼び出され，入力 \verb|ts| ファイルを対象としてコンパイルを開始する．
+  \item \verb|TsSource| を生成して入力を読み込み，\verb|Syntax| を生成する．
+  \item \verb|Syntax.parseProgram()| を実行し，構文解析により \verb|AST(Program)| を生成する．
+  \item \verb|Semantic| を生成し，\verb|AST| を入力として意味解析（宣言・スコープ・型整合性・手続き呼出の整合性の検査）を行う．
+  \item \verb|CodeGenerator| を生成し，\verb|generate(ast)| により\verb|Visitor|として \verb|Program.accept(this)| を起点に \verb|AST| を走査し，\verb|CASL| II命令列を生成する．
+  \item 生成した命令列を \verb|writeCas()| で \verb|cas| ファイルへ書き出し，末尾に \verb|lib.cas| を連結して実行可能な\verb|CASL| IIプログラムとする．
+\end{enumerate}
+
+\begin{figure}[htb]
+    \centering
+    \caption{コンパイラのシーケンス図}
+    \includegraphics[width=130mm]{images/sequence/sequence.pdf}
+    \label{fig:sequence}
+\end{figure}
+
+\subsection{出力するコードの構成と出力方法}
+本課題では，\verb|CodeGenerator.generate(Program)| が\verb|CASL| IIコード全体を組み立てる．
+図\ref{fig:casl-skel}に示すように，生成コードは(1)ヘッダ，(2)メイン部，(3)手続き定義部，(4)データ領域，(5)フッタの順に配置する．
+\verb|generate| 内では，初期化後に \verb|emitHeader()| を出力し，\verb|ast.accept(this)| を起点として\verb|Visitor|でメイン部の命令列を生成する．
+メイン部の末尾には \verb|RET| を付加し，その後に \verb|procOut| に蓄積した各手続きの命令列を連結する．
+最後に \verb|emitData()| で変数領域・文字列定数領域・\verb|LIBBUF| を蓄積し，\verb|emitFooter()| により \verb|END| を蓄積して完結させる．
+
+また，コード生成とファイル出力は分離して実装している．
+\verb|CodeGenerator| は生成結果を逐次ファイルへ書き込むのではなく，まず命令列を文字列のリストとしてメモリ上に蓄積する．
+具体的には，\verb|generate| 内で \verb|out|（メイン出力）および \verb|procOut|（手続き出力）に対して \verb|emit()| を通じて行単位で命令列を追加し，最終的にヘッダ，メイン，手続き，データ，フッタをこの順に連結した \verb|List<String>| を返す．（図\ref{fig:casl-skel}）
+
+\verb|Compiler.run()| は \verb|generate| の戻り値として得られた \verb|casLines| を \verb|writeCas()| に渡し，ここで初めて \verb|cas| ファイルとして書き出す．
+\verb|writeCas()| では，生成した命令列に加えて \verb|data/cas/lib.cas| を読み込み，その内容を末尾に追加して出力する．
+これにより，\verb|MULT| や \verb|DIV|，\verb|WRTINT| などのライブラリルーチンを利用する前提のCASL IIプログラムを，単体で実行可能な形で生成できる．
+
+% CASLコードの構成例を示す
+\begin{figure}[htb]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}l l l l l@{}}
+\hline
+\texttt{CASL}  & \texttt{START} & \texttt{BEGIN} & \texttt{;} & \texttt{(1) Header} \\
+\texttt{BEGIN} & \texttt{LAD}   & \texttt{GR6,0} & \texttt{;} & \\
+               & \texttt{LAD}   & \texttt{GR7,LIBBUF} & \texttt{;} & \\
+               & \multicolumn{3}{l}{\texttt{\dots}} & \texttt{(2) Main} \\
+               & \texttt{RET}   &                & \texttt{;} & \\
+\texttt{PROC0} & \texttt{NOP}   &                & \texttt{;} & \texttt{(3) Procedures} \\
+               & \multicolumn{3}{l}{\texttt{\dots}} & \\
+               & \texttt{RET}   &                & \texttt{;} & \\
+\multicolumn{3}{l}{\texttt{\dots}} & & \\
+\texttt{VAR}   & \texttt{DS}    & \texttt{<varCount>} & \texttt{;} & \texttt{(4) Data} \\
+\texttt{CHAR0} & \texttt{DC}    & \texttt{'...'} & \texttt{;} & \\
+\multicolumn{3}{l}{\texttt{\dots}} & & \\
+\texttt{LIBBUF}& \texttt{DS}    & \texttt{256}   & \texttt{;} & \\
+               & \texttt{END}   &                & \texttt{;} & \texttt{(5) Footer} \\
+\hline
+\end{tabular}
+\caption{\texttt{CASL} IIプログラムの構成}
+\label{fig:casl-skel}
+\end{figure}
+
+\subsection{変数・配列・文字列定数の領域設計}
+本コンパイラでは，実行時に参照するデータをすべて\verb|CASL| IIのデータ領域としてプログラム末尾に配置する．
+\verb|emitData()| により \texttt{VAR}（変数領域），\texttt{CHAR0, CHAR1, \dots}（文字列定数），\texttt{LIBBUF}（入出力バッファ）をこの順に出力し，\verb|AST|走査中に収集した情報から，確保量（\verb|varCount|）やラベル（\verb|strLabel|）を確定する．
+
+\subsubsection{変数領域 \texttt{VAR} の割当}
+変数は \texttt{VAR DS <varCount>} として連続領域を一括確保する方式とした．
+\verb|visitVarDecl| で宣言を処理する際，識別子名に対して \verb|varOffset|（名前$\rightarrow$先頭オフセット）を登録し，確保語数を表す \verb|varCount| を増加させることで領域割当を行う．
+通常の変数は1語を確保し，配列は要素数 \texttt{len = upper-lower+1} を計算して \texttt{len} 語を連続確保する．
+このように宣言順にオフセットを付与することで，後続の参照・代入は「\texttt{VAR} + オフセット」の形に統一できる．
+
+\subsubsection{配列の下限と添字補正}
+配列は下限が0とは限らないため，添字をそのまま領域オフセットに用いることはできない．
+そこで配列名に対して下限値を \verb|arrayLower| に保存し，配列先頭の割当位置 \texttt{base}（=\verb|varOffset|）と下限 \texttt{lower} から \texttt{k = base-lower} を導入する．
+実行時に評価した添字 \texttt{i} に対して \texttt{i+k} を計算すれば，\texttt{VAR} 内で参照すべき実オフセットが得られる．
+この補正は \verb|visitArrayRef| および \verb|visitArrayAccess| で行い，連続確保した配列領域へ正しくアクセスできるようにした．
+
+\subsubsection{参照・代入の統一（\texttt{VAR}基準のオフセットアクセス）}
+参照・代入はすべて \texttt{VAR} を基準としたオフセットアクセスで統一した．
+通常変数の参照（\verb|visitVarRef|）では \verb|lookupOffset(name)| で得たオフセットを用いて \verb|LD GR1, VAR, GR2| により値を読み出し，スタックへ \verb|PUSH| する．
+代入（\verb|visitVar|）では右辺式を評価して \verb|POP| した値を，同一オフセットへ \verb|ST| で格納する．
+配列についても，添字補正後のオフセットを用いて \verb|LD/ST ..., VAR, GR2| を行う点は同じであり，データアクセス規約を単純化できる．
+
+\subsubsection{文字列定数の配置と共有（\texttt{CHARi}）}
+文字列定数は重複定義を避けるために \verb|strLabel|（文字列$\rightarrow$ラベル）で一元管理し，初出時に \verb|internStringLabel| が \texttt{CHAR0, CHAR1, \dots} を採番して割り当てる．
+\verb|emitData()| では登録された順に \verb|CHARi DC '...'| を出力し，参照側ではラベル名をアドレスとして利用する．
+また \verb|visitLiteral| では，長さ2以上の文字列は「長さ」と「先頭アドレス」の2語をスタックに積むことで \texttt{WRTSTR} などのライブラリ呼出形式に合わせている．
+一方，長さ1の文字列は文字（\verb|CHAR|）として扱い，1語の値として \verb|PUSH| し，\texttt{WRTCH} に渡せる形に統一した．
+
+\subsubsection{入出力バッファ \texttt{LIBBUF}}
+入出力ライブラリが作業領域として利用するバッファとして \texttt{LIBBUF DS 256} を確保する．
+ヘッダ部で \verb|LAD GR7, LIBBUF| を行い，\verb|GR7| にバッファ先頭を設定することで，ライブラリルーチンが前提とする実行環境を整えている．
+
+\subsection{式評価と条件分岐}
+本コンパイラでは，式（\verb|Expr|）の評価結果をスタック上で受け渡す方式を採用した．
+各\verb|visit|メソッドは「自分が担当する式を評価したら，結果をスタックに\verb|PUSH|する」ことを基本規約とし，複合式は子ノードを先に走査して値を積み，その後に\verb|POP|して演算を行い，再び\verb|PUSH|する．
+この規約により，ネストした式でも評価順序が明確になり，コード生成を局所的に実装できる．
+また，条件式の真偽値は \verb|#FFFF|（真）と \verb|#0000|（偽）で表現し，\verb|if| や \verb|while| の分岐条件と整合するように統一した．
+
+\subsubsection{式評価の基本（スタック規約）}
+二項演算では \verb|left|，\verb|right| の順に\verb|accept|して値をスタックに積み，右辺，左辺の順に\verb|POP|して計算する．
+例えば加算は \verb|ADDA|，減算は \verb|SUBA| で行い，計算結果を\verb|PUSH|して上位の式へ返す．
+単項演算も同様に，子式を評価して\verb|POP|した値に対して演算を適用し，結果を\verb|PUSH|する．
+符号反転（\verb|NEG|）は \texttt{0 - x} を \verb|SUBA| で実現し，論理否定（\verb|NOT|）は \verb|XOR ..., =#FFFF| により \verb|#0000| と \verb|#FFFF| を反転させる．
+
+\subsubsection{算術演算とライブラリ呼出}
+\verb|ADD/SUB| は\verb|CASL| II命令のみで完結するが，\verb|MUL/DIV/MOD| はライブラリルーチンに委譲する．
+二項演算のオペランドを\verb|GR1|，\verb|GR2|に取り出した後，\verb|CALL MULT| や \verb|CALL DIV| を呼び出し，戻り値レジスタに格納された結果を\verb|PUSH|して式の値とする．
+\verb|MOD| については \verb|DIV| 呼出後の剰余に対応するレジスタ（実装では\verb|GR1|）を\verb|PUSH|することで実現している．
+このように，式の値は常にスタック上にあるという前提を維持したまま，複雑な演算のみをライブラリに任せる構成とした．
+
+\subsubsection{比較演算と真偽値生成}
+比較演算（\verb|EQ, NEQ, LT, LE, GT, GE|）は，左右の値を\verb|POP|した後に比較命令を実行し，分岐命令を用いて真偽値（\verb|#FFFF/#0000|）を生成してスタックに積む．
+例えば \verb|EQ| では比較後に \verb|JZE| で真分岐し，真の場合は \verb|#FFFF|，偽の場合は \verb|#0000| を\verb|LD|して\verb|PUSH|する．
+このとき，複数箇所で比較が発生してもラベルが衝突しないよう，\verb|jumpId| により \texttt{TRUE<i>}，\texttt{BOTH<i>} 等のラベルを採番している．
+
+また，本実装では比較対象が真偽値か整数かによって比較命令を切り替える．
+真偽値同士の比較は論理比較として \verb|CPL| を用い，整数同士の比較は算術比較として \verb|CPA| を用いる．
+この判定には，宣言処理で構築した \verb|varKind| を参照し，左右の式の種別を \verb|exprKind| で求めた上で \verb|isBoolCompare| により分岐している．
+
+\subsubsection{条件分岐（\texttt{if}）}
+\verb|if| 文では，まず条件式を評価してスタックに積み，\verb|POP|した値が \verb|#0000| かどうかで分岐する．
+具体的には \verb|CPA GR1, =#0000| の後，偽（0）のとき \verb|JZE| で \texttt{ELSE<i>}（または \texttt{ENDIF<i>}）へ分岐し，真（非0）のとき \verb|then| 部を実行する．
+\verb|else| 部が存在する場合は \verb|then| 部の末尾で \texttt{ENDIF<i>} へ \verb|JUMP| し，その間に \texttt{ELSE<i>} ラベルを配置して \verb|else| 部を実行する．
+ラベルは \verb|jumpId| により一意に採番し，入れ子構造でも正しく展開できる．
+
+\subsubsection{反復（\texttt{while}）}
+\verb|while| 文では \texttt{LOOP<i>} をループ先頭，\texttt{ENDLP<i>} を終了位置としてラベルを配置する．
+先頭で条件式を評価し，\verb|#0000|（偽）なら \texttt{ENDLP<i>} へ分岐してループを終了し，真なら本体を実行した後に \texttt{LOOP<i>} へ戻る．
+この構成により，構造化された反復構文を\verb|CASL| IIの条件分岐命令列へ直接対応付けている．
+
+以上のように，式評価を「結果をスタックに積む」という規約で統一し，真偽値を \verb|#FFFF/#0000| に正規化することで，比較演算と \verb|if/while| の分岐処理を一貫した枠組みで実装できた．
+図\ref{fig:ifelse-while-skel}は，\verb|if-else|文と\verb|while|文の分岐を実現している部分である．
+
+% --- if-else / while のCASL II骨組み（横並び） ---
+\begin{figure}[htb]
+\centering
+\small
+\setlength{\tabcolsep}{8pt}
+
+\begin{minipage}{0.48\linewidth}
+\centering
+\begin{tabular}{@{}l l@{}}
+\hline
+\multicolumn{2}{@{}l@{}}{\texttt{... 条件式の計算 ...}}\\
+\texttt{ }        & \texttt{POP\ \ GR1} \\
+\texttt{ }        & \texttt{CPA\ \ GR1, =\#0000} \\
+\texttt{ }        & \texttt{JZE\ \ ELSE<i>} \\
+\multicolumn{2}{@{}l@{}}{\texttt{... then 部 ...}}\\
+\texttt{ }        & \texttt{JUMP\ ENDIF<i>} \\
+\texttt{ELSE<i>}  & \texttt{NOP} \\
+\multicolumn{2}{@{}l@{}}{\texttt{... else 部 ...}}\\
+\texttt{ENDIF<i>} & \texttt{NOP} \\
+\hline
+\end{tabular}
+\end{minipage}
+\hfill
+\begin{minipage}{0.48\linewidth}
+\centering
+\begin{tabular}{@{}l l@{}}
+\hline
+\texttt{LOOP<i>}  & \texttt{NOP} \\
+\multicolumn{2}{@{}l@{}}{\texttt{... 条件式の計算 ...}}\\
+\texttt{ }        & \texttt{POP\ \ GR1} \\
+\texttt{ }        & \texttt{CPA\ \ GR1, =\#0000} \\
+\texttt{ }        & \texttt{JZE\ \ ENDLP<i>} \\
+\multicolumn{2}{@{}l@{}}{\texttt{... body 部 ...}}\\
+\texttt{ }        & \texttt{JUMP\ LOOP<i>} \\
+\texttt{ENDLP<i>} & \texttt{NOP} \\
+\hline
+\end{tabular}
+\end{minipage}
+
+\caption{\texttt{if-else}および\texttt{while}文の構成}
+\label{fig:ifelse-while-skel}
+\end{figure}
+
+\subsection{手続きと引数の扱いとスコープ管理}
+本コンパイラでは，手続きを\verb|CASL| IIの \verb|CALL| と \verb|RET| により実現し，引数はスタックを介して受け渡す方式を採用した．
+ただし手続き本体では，引数を含む識別子参照をすべて \texttt{VAR} 基準のオフセットアクセスに統一したい．
+そこで，呼出直後に仮引数をスタックから取り出して \texttt{VAR} 領域へコピーし，スタック上に残る戻り番地の位置を調整してから本体を実行する構成とした．
+また，手続きごとに識別子表（\verb|varOffset|，\verb|varKind|，\verb|arrayLower|）を退避・復元することで，字句的スコープをコード生成段階でも維持する．
+
+\subsubsection{手続き定義の配置とラベル管理}
+手続き定義はメイン部の後方にまとめて配置する．
+\verb|visitProcedureDecl| では出力先を \verb|currentOut| により切り替え，手続きの命令列は \verb|procOut| に蓄積する．
+\verb|generate| の最後で \verb|out.addAll(procOut)| によりメイン直後へ連結し，実行可能な構成（メイン$\rightarrow$手続き定義$\rightarrow$データ領域）を保つ．
+手続き名とラベルは \verb|procLabel|（名前$\rightarrow$ \texttt{PROC<i>}）で管理し，\verb|CALL| は対応ラベルへ分岐する．
+手続き本体の末尾には \verb|RET| を付加して呼出元へ復帰する．
+
+\subsubsection{呼出側：引数の評価と\texttt{CALL}}
+呼出側（\verb|visitProcCall|）では，引数式を左から順に評価し，それぞれの値をスタックへ \verb|PUSH| する．
+その後に \verb|CALL PROC<i>| を発行する．
+この時点でスタック上には「引数列」と「\verb|CALL| により積まれる戻り番地」が共存するため，手続き側ではこれらを整形してから本体を実行する必要がある．
+
+\subsubsection{仮引数処理に伴うスタック操作（戻り番地・引数の後始末）}
+手続き呼出では，呼出側が引数をスタックに積んだ後に \verb|CALL| を行うため，被呼出側の開始直後のスタックには「引数列」と「戻り番地」が混在する．
+本実装では，仮引数を手続き内でも通常変数と同じ規約（\texttt{VAR}基準のオフセット参照）で扱えるように，呼出直後に仮引数をスタックから \texttt{VAR} 領域へコピーする．
+コピー後は，引数領域をスタックから取り除き，戻り番地のみがスタック先頭に残る形へ整形することで，\verb|RET| が正しく復帰できる状態を保証する．
+図\ref{fig:param-callret}左に処理の骨組み，右にスタック状態の遷移例を示す（図中は説明のため引数2個の場合を例示しているが，実装は \verb|nParams| により一般の個数に対応する）．
+左図では \verb|GR1| を \verb|GR8|（\verb|SP|）から初期化して仮引数列を指すように調整し（\verb|ADDA GR1, =nParams|），\verb|visitParam| が \verb|LD/ST| を用いて各仮引数を \texttt{VAR[offset]} に格納する．
+最後に \verb|LD GR1, 0, GR8| で戻り番地を退避し，\verb|ADDA GR8, =nParams| で引数領域を破棄した後，\verb|ST GR1, 0, GR8| により戻り番地を再配置することで，手続き本体がスタックを自由に利用した後でも \verb|RET| により確実に呼出元へ復帰できる．
+
+% --- コード（左）とスタック図（右）を横並び ---
+\begin{figure}[htb]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+
+\begin{minipage}[t]{0.65\linewidth}
+\vspace{20pt}
+\centering
+\begin{tabular}{@{}l l l l@{}}
+\hline
+      & \texttt{... (a) ...}     &                     & \texttt{; 引数を評価} \\
+      & \texttt{PUSH}            & \texttt{0, GR1}     & \texttt{; 引数を積む} \\
+      & \texttt{... (b) ...}     &                     & \texttt{; 引数を評価} \\
+      & \texttt{PUSH}            & \texttt{0, GR1}     & \texttt{; 引数を積む} \\
+      & \texttt{CALL}            & \texttt{PROC0}      & \texttt{; 手続き呼出} \\
+\texttt{PROC0} & \texttt{NOP}    &                     & \texttt{; 手続き先頭} \\
+      & \texttt{LD}              & \texttt{GR1, GR8}   & \texttt{; GR1$\leftarrow$SP} \\
+      & \texttt{ADDA}            & \texttt{GR1, =2}    & \texttt{; 引数の数ずらす} \\
+      & \texttt{LD}              & \texttt{GR2, 0, GR1}& \texttt{; 仮引数1} \\
+      & \texttt{LD}              & \texttt{GR3, =10}   & \texttt{; offset} \\
+      & \texttt{ST}              & \texttt{GR2, VAR, GR3}& \texttt{; VARへ} \\
+      & \texttt{SUBA}            & \texttt{GR1, =1}    & \texttt{; 次へ} \\
+      & \texttt{LD}              & \texttt{GR2, 0, GR1}& \texttt{; 仮引数2} \\
+      & \texttt{LD}              & \texttt{GR3, =11}   & \texttt{; offset} \\
+      & \texttt{ST}              & \texttt{GR2, VAR, GR3}& \texttt{; VARへ} \\
+      & \texttt{SUBA}            & \texttt{GR1, =1}    & \texttt{; 次へ} \\
+      & \texttt{LD}              & \texttt{GR1, 0, GR8}& \texttt{; 戻り番地} \\
+      & \texttt{ADDA}            & \texttt{GR8, =2}    & \texttt{; 引数破棄} \\
+      & \texttt{ST}              & \texttt{GR1, 0, GR8}& \texttt{; 戻り番地再配置} \\
+      & \texttt{... body ...}    &                     & \texttt{; 本体} \\
+      & \texttt{RET}             &                     & \texttt{; 復帰} \\
+\hline
+\end{tabular}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.35\linewidth}
+\vspace{0pt}
+\centering
+\includegraphics[width=\linewidth]{images/stack.pdf}
+\end{minipage}
+
+\caption{仮引数処理に伴うスタック操作：コード（左）とスタック状態（右）}
+\label{fig:param-callret}
+\end{figure}
+
+\subsubsection{スコープの実現（識別子表の退避・復元）}
+手続きごとにローカル変数および仮引数を \texttt{VAR} 領域へ割り当てるため，識別子表（名前$\rightarrow$オフセット/型/配列下限）は手続き内部で一時的に拡張される．
+本実装では，\verb|visitProcedureDecl| の先頭で外側スコープの情報（\verb|varOffset|，\verb|varKind|，\verb|arrayLower|）を退避し，その内容をコピーした「手続き用の識別子表」を作ってから，手続き内部の宣言をこのコピー側に追加していく．
+具体的には，\verb|visitVarDecl| や \verb|visitParam| により，新たに現れた識別子をコピー側の \verb|varOffset| 等へ登録し，手続き内だけで有効な名前解決（どの名前がどの領域を指すか）を成立させる．
+
+手続き本体の生成が終わったら，退避しておいた元の識別子表を復元し，手続き用に作ったコピー側の識別子表は破棄（開放）する．
+この「コピーを拡張して使い，手続き終了時にコピーを捨てる」手順により，手続き内で追加したエントリ（ローカル変数・仮引数）は外側へ持ち出されず，スコープを抜けた識別子は以降のコード生成から参照できなくなる．
+その結果，手続き内で宣言した識別子が外側へ漏れないこと，および外側の同名識別子が手続き内で一時的に隠蔽されることを，自然に実現できる．
+
+仮引数はスタック上に保持したまま参照するのではなく，手続き開始直後に \texttt{VAR} 領域へコピーし，以後は通常変数と同じ \texttt{VAR+offset} 規約で参照する．
+これにより，手続き内の式評価・代入・配列参照は常に「\texttt{VAR} + \verb|offset|」に帰着し，スコープ管理は「どの名前がどの \verb|offset| を持つか」を表す \verb|varOffset| の管理に集中できるため，コード生成の見通しと保守性が向上する．
+
+
+\section{実装プログラム}
+\subsection{コード生成器の全体構成}
+
+\subsection{データ領域と変数アクセスの実装}
+\subsection{制御構文と手続き呼出の実装}
+
+\section{考察や工夫点}
+\begin{itemize}
+  \item \textbf{中間表現（\texttt{AST}）を用いた設計の利点}\\
+  本課題では，構文解析で生成した \verb|AST| を中間表現として，意味解析とコード生成の両方で共通利用した．
+  ノード種別（\verb|Program, VarDecl, Binary, IfS| など）に対して \verb|Visitor| を適用することで，各処理をノードごとに局所化でき，生成規則の追加・修正が他部分へ波及しにくい構造になった．
+  特に，構文（木構造）と処理（意味検査・コード生成）を分離できるため，機能追加やデバッグが容易になった．
+
+  \item \textbf{評価規約の統一（式評価・真偽値・制御構文の共通化）}\\
+  式評価は「評価結果をスタックに \verb|PUSH| して親へ返す」という規約に統一し，二項演算は子を先に評価して値を積み，\verb|POP| して演算し，結果を再度 \verb|PUSH| する方式とした．
+  また真偽値を \verb|#FFFF|（真）と \verb|#0000|（偽）に正規化し，\verb|if| や \verb|while| では「条件式を評価→\verb|#0000| なら分岐」の形に揃えた．
+  この統一により，ネストした式・条件式・比較演算・制御構文を同一の枠組みで展開でき，コード生成の見通しと一貫性が向上した．
+  さらに，手続き呼出でも仮引数を \texttt{VAR} へコピーして以後は通常変数と同規約で扱うことで，手続き本体は「スタック＝式評価・一時値用」として自由に利用できる状態を保てるようにした．
+
+  \item \textbf{データ表現とメモリアクセス規約（\texttt{VAR}基準のオフセット設計）}\\
+  変数・配列・仮引数をすべて \texttt{VAR} 領域に割り当て，「\texttt{VAR} + \verb|offset|」で参照・代入する規約に統一した．
+  \verb|visitVarDecl| で \verb|varOffset| を構築し，配列は \verb|arrayLower| に下限を保持して添字補正（\texttt{base-lower+i}）により連続確保領域へアクセスする．
+  文字列定数は \verb|strLabel| で共有し，\texttt{CHAR<i>} ラベルとして \texttt{DC} 領域へ集約することで重複定義を避けた．
+  このように参照規約を単純化したことで，コード生成は名前解決と\verb|CASL|命令列生成を明確に分離できた．
+
+  \item \textbf{今後の拡張性（最適化・機能拡張の余地）}\\
+  生成器が \verb|AST| を基準に実装されているため，将来的に最適化や機能拡張を差し込みやすい．
+  例えば覗き穴最適化として，局所的な命令列をパターンマッチして短縮できる．
+  具体例として，\texttt{PUSH 0, GR1} 直後の \texttt{POP GR1} のような無意味な往復の削除，\texttt{LD GR1, =0} に続く \texttt{ADDA GR1, =k} を \texttt{LD GR1, =k} へ畳み込み，\texttt{JUMP L; L NOP} のような冗長ラベルの整理などが考えられる．
+  また，将来的にレジスタ割当や定数畳み込み，分岐簡約などを導入する場合も，「\verb|AST|段階の最適化」または「\verb|CASL|出力後の最適化」を独立パスとして追加でき，現行実装を大きく崩さずに性能改善を進められる．
+\end{itemize}
+
+
+\section{感想}
+本課題では，字句解析・構文解析・意味解析で得られた情報を用いて，最終的に \texttt{CASL} II の命令列を生成するまでを一貫して実装した．
+特に，機能を追加するたびにテストケースを1つずつ確認し，原因を切り分けながら修正していく作業は想像以上に手間がかかり，大変であった．
+一方で，小さなテストを積み重ねることで不具合の発生箇所を特定しやすくなり，最終的な安定動作につながることも実感できた．
+
+また，構文解析で作成した \texttt{AST} を中間表現として用い，意味解析とコード生成を \texttt{Visitor} パターンで分離して実装したことで，処理の責務を整理しながら拡張できた点は有用だった．
+ノードごとの \texttt{visit} に局所的な規約（スタック規約や \texttt{VAR+offset} 参照規約）を持たせることで，生成規則を追跡しやすく，保守もしやすい構成になったと感じる．
+
+さらに，生成された \texttt{CASL} II アセンブリコードを追いながら動作を確認する過程で，高級言語の構文が条件分岐やスタック操作，データ領域アクセスなどの具体的な命令列に落ちる様子を理解できた．
+コンパイラが出力したコードを手で読んで「プログラムが実際にどのように動いているか」を把握する経験は，普段のプログラミングでは得にくい学びであり，今後の低レイヤ理解やデバッグにも役立つと考える．
 
 \end{document}

@@ -1,0 +1,38 @@
+package enshud.ast;
+
+/** 式中の配列参照 */
+public final class ArrayRef implements Expr {
+    private final String name;
+    private final Expr index;
+    private final int line;
+
+    // binding
+    private int baseOffset = -1;     // VAR上の配列先頭オフセット
+    private int lower = 0;           // 下限
+    private BuiltinType elemType = null;
+
+    public ArrayRef(String name, Expr index, int line) {
+        this.name = name;
+        this.index = index;
+        this.line = line;
+    }
+
+    public String name() { return name; }
+    public Expr index() { return index; }
+    public int line() { return line; }
+
+    public void bindArray(int baseOffset, int lower, BuiltinType elemType) {
+        this.baseOffset = baseOffset;
+        this.lower = lower;
+        this.elemType = elemType;
+    }
+
+    public int baseOffset() { return baseOffset; }
+    public int lower() { return lower; }
+    public BuiltinType elemType() { return elemType; }
+
+    @Override
+    public <R> R accept(AstVisitor<R> v) {
+        return v.visitArrayRef(this);
+    }
+}

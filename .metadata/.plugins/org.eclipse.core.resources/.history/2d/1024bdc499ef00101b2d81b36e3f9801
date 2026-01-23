@@ -1,0 +1,35 @@
+package enshud.ast;
+
+/** 式中の変数参照（純変数） */
+public final class VarRef implements Expr {
+    private final String name;
+    private final int line;
+
+    // --- ここから「解決結果」(後付けで埋める) ---
+    private int offset = -1;              // VAR からのオフセット（未解決は -1）
+    private TypeNode resolvedType = null; // 型（BuiltinType.INTEGER/CHAR/BOOLEAN など）
+    // -----------------------------------------
+
+    public VarRef(String name, int line) {
+        this.name = name;
+        this.line = line;
+    }
+
+    public String name() { return name; }
+    public int line() { return line; }
+
+    /** 名前解決（binding）後に呼ぶ：どの領域を参照するかを確定する */
+    public void bind(int offset, TypeNode type) {
+        this.offset = offset;
+        this.resolvedType = type;
+    }
+
+    public boolean isBound() { return offset >= 0; }
+    public int offset() { return offset; }
+    public TypeNode resolvedType() { return resolvedType; }
+
+    @Override
+    public <R> R accept(AstVisitor<R> v) {
+        return v.visitVarRef(this);
+    }
+}

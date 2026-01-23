@@ -1,0 +1,52 @@
+@startuml compiler
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+
+package "compiler" {
+  class Compiler {
+    run(String, String)
+  }
+
+  class CodeGenerator {
+    generate(Program)
+  }
+}
+
+package "parser" {
+  class TsSource
+  class Syntax {
+    parseProgram()
+  }
+  class ParseError
+}
+
+package "checker" {
+  class Semantic
+  class CheckError
+}
+
+' --- AST / Visitor (minimal) ---
+interface AstVisitor<T>
+class Program {
+  accept(AstVisitor<R>)
+}
+
+CodeGenerator ..|> AstVisitor : implements
+Program --> AstVisitor : accept
+
+' --- flow dependencies ---
+Compiler ..> TsSource : creates
+Compiler ..> Syntax : creates
+Compiler ..> Semantic : creates
+Compiler ..> CodeGenerator : creates
+Compiler ..> Program : uses
+Compiler ..> ParseError : catches
+Compiler ..> CheckError : catches
+
+Syntax --> Program : builds
+Syntax ..> TsSource : uses
+Semantic --> Program : checks
+CodeGenerator --> Program : generates from
+CodeGenerator ..> Program : accept
+
+@enduml

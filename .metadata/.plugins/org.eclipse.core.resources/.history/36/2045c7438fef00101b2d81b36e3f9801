@@ -1,0 +1,4 @@
+package enshud.ast;
+
+/** 定数の種別：符号なし整数 / 文字列 / 真偽 */
+public enum LitKind { INT, STRING, BOOL, CHAR }

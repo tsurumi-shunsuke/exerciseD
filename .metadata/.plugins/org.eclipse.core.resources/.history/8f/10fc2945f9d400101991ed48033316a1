@@ -1,6 +1,0 @@
-package enshud.ast;
-
-// AST の基底 
-public interface Node<R> {
-	public abstract R accept(AstVisitor<R> v);
-}

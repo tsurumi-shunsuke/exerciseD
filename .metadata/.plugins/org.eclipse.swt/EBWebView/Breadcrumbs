@@ -1,117 +1,53 @@
-1:52:45 Tab2 StartNav13 #typed
-1:52:45 Tab2 FinishNav13
-1:52:45 Tab2 PageLoad
-3:19:26 Tab2 StartNav14 #typed
-3:19:26 Tab2 FinishNav14
-3:19:26 Tab2 PageLoad
-3:19:30 Tab2 StartNav15 #typed
-3:19:30 Tab2 FinishNav15
-3:19:30 Tab2 PageLoad
-3:19:33 Tab2 StartNav16 #typed
-3:19:33 Tab2 FinishNav16
-3:19:33 Tab2 PageLoad
-3:19:39 Tab2 StartNav17 #typed
-3:19:39 Tab2 FinishNav17
-3:19:39 Tab2 PageLoad
-3:19:41 Tab2 StartNav18 #typed
-3:19:41 Tab2 FinishNav18
-3:19:41 Tab2 PageLoad
-3:19:46 Tab2 StartNav19 #typed
-3:19:46 Tab2 FinishNav19
-3:19:46 Tab2 PageLoad
-3:19:49 Tab2 StartNav20 #typed
-3:19:49 Tab2 FinishNav20
-3:19:49 Tab2 PageLoad
-3:19:54 Tab2 StartNav21 #typed
-3:19:54 Tab2 FinishNav21
-3:19:54 Tab2 PageLoad
-3:19:54 Tab2 StartNav22 #typed
-3:19:54 Tab2 FinishNav22
-3:19:54 Tab2 PageLoad
-3:25:51 Microsoft.NewBrowser_Popup
-3:25:51 Microsoft.BrowserList.AddBrowser
-3:25:51 Browser3 Insert active Tab3 at 0
-3:25:51 Tab3 StartNav23 #auto_toplevel
-3:25:51 Tab3 StartNav24 #typed
-3:25:51 Tab3 FinishNav23
-3:25:51 Tab3 PageLoad
-3:25:51 Tab3 FinishNav24
-3:25:51 Tab3 PageLoad
-3:25:52 Microsoft.NewBrowser_Popup
-3:25:52 Microsoft.BrowserList.AddBrowser
-3:25:52 Browser4 Insert active Tab4 at 0
-3:25:52 Tab4 StartNav25 #auto_toplevel
-3:25:52 Tab4 FinishNav25
-3:25:52 Tab4 PageLoad
-3:25:52 Tab4 StartNav26 #typed
-3:25:52 Tab3 StartNav27 #typed
-3:25:52 Tab4 FinishNav26
-3:25:52 Tab3 FinishNav27
-3:25:52 Tab4 PageLoad
-3:25:52 Tab3 PageLoad
-3:25:52 Tab3 StartNav28 #typed
-3:25:52 Tab3 FinishNav28
-3:25:52 Tab3 PageLoad
-3:25:52 Tab4 StartNav29 #typed
-3:25:52 Tab4 FinishNav29
-3:25:52 Tab4 PageLoad
-3:48:25 Tab2 StartNav30 #typed
-3:48:25 Tab2 FinishNav30
-3:48:25 Tab2 PageLoad
-3:48:39 Tab2 StartNav31 #typed
-3:48:39 Tab2 FinishNav31
-3:48:39 Tab2 PageLoad
-3:48:47 Tab2 StartNav32 #typed
-3:48:47 Tab2 FinishNav32
-3:48:47 Tab2 PageLoad
-3:48:56 Tab2 StartNav33 #typed
-3:48:56 Tab2 FinishNav33
-3:48:56 Tab2 PageLoad
-3:49:00 Tab2 StartNav34 #typed
-3:49:00 Tab2 FinishNav34
-3:49:00 Tab2 PageLoad
-3:49:01 Tab2 StartNav35 #typed
-3:49:01 Tab2 FinishNav35
-3:49:01 Tab2 PageLoad
-3:49:07 Tab2 StartNav36 #typed
-3:49:07 Tab2 FinishNav36
-3:49:07 Tab2 PageLoad
-3:49:07 Tab2 StartNav37 #typed
-3:49:07 Tab2 FinishNav37
-3:49:07 Tab2 PageLoad
-3:49:08 Tab2 StartNav38 #typed
-3:49:09 Tab2 FinishNav38
-3:49:09 Tab2 PageLoad
-3:49:19 Tab2 StartNav39 #typed
-3:49:19 Tab2 FinishNav39
-3:49:19 Tab2 PageLoad
-3:49:22 Tab2 StartNav40 #typed
-3:49:22 Tab2 FinishNav40
-3:49:22 Tab2 PageLoad
-3:49:23 Tab2 StartNav41 #typed
-3:49:23 Tab2 FinishNav41
-3:49:23 Tab2 PageLoad
-6:03:01 Tab2 StartNav42 #typed
-6:03:01 Tab2 FinishNav42
-6:03:01 Tab2 PageLoad
-6:03:11 Microsoft.NewBrowser_Popup
-6:03:11 Microsoft.BrowserList.AddBrowser
-6:03:11 Browser5 Insert active Tab5 at 0
-6:03:11 Tab5 StartNav43 #auto_toplevel
-6:03:11 Tab5 StartNav44 #typed
-6:03:11 Tab5 StartNav45 #typed
-6:03:11 Tab5 FinishNav43
-6:03:11 Tab5 PageLoad
-6:03:11 Tab5 FinishNav44
-6:03:11 Tab5 PageLoad
-6:03:11 Tab5 FinishNav45
-6:03:11 Tab5 PageLoad
-6:03:12 Tab5 StartNav46 #typed
-6:03:12 Tab5 FinishNav46
-6:03:12 Tab5 PageLoad
-6:03:13 Tab5 StartNav47 #typed
-6:03:13 Tab5 FinishNav47
-6:03:13 Tab5 PageLoad
-6:03:28 Tab5 StartNav48 #typed
-6:03:28 Tab5 FinishNav48
-6:03:28 Tab5 PageLoad
+25:16:53 Tab3 StartNav74 #typed
+25:16:53 Tab3 FinishNav74
+25:16:53 Tab3 PageLoad
+25:16:56 Tab3 StartNav75 #typed
+25:16:56 Tab3 FinishNav75
+25:16:56 Tab3 PageLoad
+25:17:00 Tab3 StartNav76 #typed
+25:17:00 Tab3 FinishNav76
+25:17:00 Tab3 PageLoad
+25:17:45 Tab3 StartNav77 #typed
+25:17:45 Tab3 FinishNav77
+25:17:45 Tab3 PageLoad
+25:17:48 Tab3 StartNav78 #typed
+25:17:48 Tab3 FinishNav78
+25:17:48 Tab3 PageLoad
+25:17:48 Tab3 StartNav79 #typed
+25:17:48 Tab3 FinishNav79
+25:17:48 Tab3 PageLoad
+25:17:50 Tab3 StartNav80 #typed
+25:17:50 Tab3 FinishNav80
+25:17:50 Tab3 PageLoad
+25:17:50 Tab3 StartNav81 #typed
+25:17:50 Tab3 FinishNav81
+25:17:50 Tab3 PageLoad
+25:18:12 Tab3 StartNav82 #typed
+25:18:12 Tab3 FinishNav82
+25:18:12 Tab3 PageLoad
+25:18:13 Tab3 StartNav83 #typed
+25:18:13 Tab3 FinishNav83
+25:18:13 Tab3 PageLoad
+26:30:23 Memory Pressure: Moderate
+26:30:28 Memory Pressure: None
+26:42:03 Tab3 StartNav84 #typed
+26:42:03 Tab3 FinishNav84
+26:42:03 Tab3 PageLoad
+26:42:03 Tab3 StartNav85 #typed
+26:42:03 Tab3 FinishNav85
+26:42:03 Tab3 PageLoad
+26:42:16 Tab3 StartNav86 #typed
+26:42:16 Tab3 FinishNav86
+26:42:16 Tab3 PageLoad
+26:42:49 Tab3 StartNav87 #typed
+26:42:49 Tab3 FinishNav87
+26:42:49 Tab3 PageLoad
+26:54:58 Tab3 StartNav88 #typed
+26:54:58 Tab3 FinishNav88
+26:54:58 Tab3 PageLoad
+26:54:59 Tab3 StartNav89 #typed
+26:54:59 Tab3 FinishNav89
+26:54:59 Tab3 PageLoad
+26:55:12 Tab3 StartNav90 #typed
+26:55:12 Tab3 FinishNav90
+26:55:12 Tab3 PageLoad
