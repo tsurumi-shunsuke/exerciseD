@@ -1,11 +1,11 @@
 # Fdb version 4
-["dvipdf"] 1769271291.43103 "out/task4.dvi" "out/task4.pdf" "out/task4" 1769271292.48826 0
-  "out/task4.dvi" 1769271291 55876 8cf7dfcada30b382947b9d216372dd38 "latex"
+["dvipdf"] 1769271608.19665 "out/task4.dvi" "out/task4.pdf" "out/task4" 1769271609.4343 0
+  "out/task4.dvi" 1769271608 55876 8bbc08e760b990c8203590de9d86598c "latex"
   (generated)
   "out/task4.pdf"
   (rewritten before read)
-["latex"] 1769271287.99161 "c:/Users/s2-ru/University/2025-second/exerciseD/task4/task4.tex" "out/task4.dvi" "task4" 1769271292.48529 0
-  "c:/Users/s2-ru/University/2025-second/exerciseD/task4/task4.tex" 1769271286 33172 000bd51bcd738c5e6a08f3b74cb19128 ""
+["latex"] 1769271603.71828 "c:/Users/s2-ru/University/2025-second/exerciseD/task4/task4.tex" "out/task4.dvi" "task4" 1769271609.42957 0
+  "c:/Users/s2-ru/University/2025-second/exerciseD/task4/task4.tex" 1769271602 33172 6b213f8b56e17e9a0a672a21c077ff9b ""
   "c:/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1713413497 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/ptex-fonts/standard/goth10.tfm" 1713416054 1196 5981e79c37b2cfd27b3612a6783cd4b6 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/ptex-fonts/standard/min10.tfm" 1713416054 1196 1be730212205a270378fba11a44765dc ""
@@ -101,8 +101,8 @@
   "images/scope.pdf" 1769270330 73370 adfc107b7f5eac3314c5bba5ed26f1ff ""
   "images/sequence/sequence.pdf" 1769264952 18525 3fc2d4957e53106e6bf06da5723f497e ""
   "images/stack.pdf" 1769162827 63808 893041c7febcd568bfc4003737b27a47 ""
-  "out/task4.aux" 1769271291 3558 634a58e395e83190d948e00219d75573 "latex"
-  "task4.tex" 1769271286 33172 000bd51bcd738c5e6a08f3b74cb19128 ""
+  "out/task4.aux" 1769271607 3558 634a58e395e83190d948e00219d75573 "latex"
+  "task4.tex" 1769271602 33172 6b213f8b56e17e9a0a672a21c077ff9b ""
   (generated)
   "out/task4.aux"
   "out/task4.dvi"
