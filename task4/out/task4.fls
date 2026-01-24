@@ -233,6 +233,10 @@ INPUT c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxexa.tfm
 INPUT c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxexa.tfm
 INPUT c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxexa.tfm
 INPUT c:/texlive/2024/texmf-dist/fonts/tfm/public/txfonts/txtt.tfm
+INPUT c:/texlive/2024/texmf-dist/tex/latex/newtx/ts1ntxtlf.fd
+INPUT c:/texlive/2024/texmf-dist/tex/latex/newtx/ts1ntxtlf.fd
+INPUT c:/texlive/2024/texmf-dist/tex/latex/newtx/ts1ntxtlf.fd
+INPUT c:/texlive/2024/texmf-dist/fonts/tfm/public/tex-gyre/ts1-qtmr.tfm
 INPUT c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntx-Bold-tlf-ot1.tfm
 INPUT c:/texlive/2024/texmf-dist/fonts/tfm/public/txfonts/txbtt.tfm
 INPUT c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntxmi.tfm
@@ -246,8 +250,21 @@ INPUT ./images/stack.pdf
 INPUT ./images/stack.pdf
 INPUT ./images/stack.pdf
 INPUT extractbb -B cropbox -O images/stack.pdf
-INPUT c:/texlive/2024/texmf-dist/tex/latex/newtx/ts1ntxtlf.fd
-INPUT c:/texlive/2024/texmf-dist/tex/latex/newtx/ts1ntxtlf.fd
-INPUT c:/texlive/2024/texmf-dist/tex/latex/newtx/ts1ntxtlf.fd
-INPUT c:/texlive/2024/texmf-dist/fonts/tfm/public/tex-gyre/ts1-qtmr.tfm
+INPUT ./images/scope.pdf
+INPUT ./images/scope.pdf
+INPUT ./images/scope.pdf
+INPUT extractbb -B cropbox -O images/scope.pdf
+INPUT ./codes/compiler.txt
+INPUT ./codes/compiler.txt
+INPUT codes/compiler.txt
+INPUT c:/texlive/2024/texmf-dist/fonts/tfm/public/newtx/ntx-Regular-tlf-ot1.tfm
+INPUT ./codes/generate.txt
+INPUT ./codes/generate.txt
+INPUT codes/generate.txt
+INPUT ./codes/visitVar.txt
+INPUT ./codes/visitVar.txt
+INPUT codes/visitVar.txt
+INPUT ./codes/procedureDecl.txt
+INPUT ./codes/procedureDecl.txt
+INPUT codes/procedureDecl.txt
 INPUT out/task4.aux

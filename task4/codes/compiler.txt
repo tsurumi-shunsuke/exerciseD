@@ -1,0 +1,21 @@
+public String run(final String inputFileName, final String outputFileName) {
+    try {
+        final var in = new java.io.File(inputFileName);
+        final TsSource src = new TsSource(in);
+        final Syntax syn = new Syntax(src);
+        final Program ast = syn.parseProgram(); // 構文解析
+        if (!src.eof()) throw new ParseError(src.peek().lineNo);
+        try {
+            new Semantic(ast); // 意味解析
+        } catch (CheckError ce) {
+            return "Semantic error: line " + ce.lineNo;
+        }
+        final List<String> casLines = new CodeGenerator().generate(ast); // コード生成
+        writeCas(casLines, outputFileName);
+        return "OK";
+    } catch (ParseError e) {
+        return "Syntax error: line " + e.lineNo;
+    } catch (IOException e) {
+        return "File not found. (IOExeption)";
+    }
+}

@@ -1,11 +1,11 @@
 # Fdb version 4
-["dvipdf"] 1769168281.20847 "out/task4.dvi" "out/task4.pdf" "out/task4" 1769168282.8969 0
-  "out/task4.dvi" 1769168281 38580 1da1a993a2318e77368a939164bae312 "latex"
+["dvipdf"] 1769271291.43103 "out/task4.dvi" "out/task4.pdf" "out/task4" 1769271292.48826 0
+  "out/task4.dvi" 1769271291 55876 8cf7dfcada30b382947b9d216372dd38 "latex"
   (generated)
   "out/task4.pdf"
   (rewritten before read)
-["latex"] 1769168277.02096 "c:/Users/s2-ru/University/2025-second/exerciseD/task4/task4.tex" "out/task4.dvi" "task4" 1769168282.89152 0
-  "c:/Users/s2-ru/University/2025-second/exerciseD/task4/task4.tex" 1769168267 31641 4761ad006205c19b15a35d96643dd8c5 ""
+["latex"] 1769271287.99161 "c:/Users/s2-ru/University/2025-second/exerciseD/task4/task4.tex" "out/task4.dvi" "task4" 1769271292.48529 0
+  "c:/Users/s2-ru/University/2025-second/exerciseD/task4/task4.tex" 1769271286 33172 000bd51bcd738c5e6a08f3b74cb19128 ""
   "c:/texlive/2024/texmf-dist/fonts/map/fontname/texfonts.map" 1713413497 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/ptex-fonts/standard/goth10.tfm" 1713416054 1196 5981e79c37b2cfd27b3612a6783cd4b6 ""
   "c:/texlive/2024/texmf-dist/fonts/tfm/ptex-fonts/standard/min10.tfm" 1713416054 1196 1be730212205a270378fba11a44765dc ""
@@ -93,11 +93,16 @@
   "c:/texlive/2024/texmf-dist/web2c/texmf.cnf" 1717248008 41983 7ec6bfd6bf34339a61f0f08f42298e60 ""
   "c:/texlive/2024/texmf-var/web2c/euptex/platex.fmt" 1717248932 8161728 1aeabc979960e0c5e4a54d4c7517a8aa ""
   "c:/texlive/2024/texmf.cnf" 1713417677 713 e69b156964470283e0530f5060668171 ""
+  "codes/compiler.txt" 1769169105 865 ce757629bd36d50ffb9a8b52126c71bf ""
+  "codes/generate.txt" 1769266876 197 073e06aa8431cc9f635898ef2c84f3f3 ""
+  "codes/procedureDecl.txt" 1769267375 828 0082984abf9ebcbbbe3a113d0e55b5c3 ""
+  "codes/visitVar.txt" 1769250850 235 d376be3108ca59c44d4874f8a3e2e8f8 ""
   "images/compiler/compiler.pdf" 1769066771 28405 a82a9feca07fc9e64a36586e6ef0872d ""
-  "images/sequence/sequence.pdf" 1769142673 15091 25561d4f3f5db2292b924ca232ce4bbf ""
+  "images/scope.pdf" 1769270330 73370 adfc107b7f5eac3314c5bba5ed26f1ff ""
+  "images/sequence/sequence.pdf" 1769264952 18525 3fc2d4957e53106e6bf06da5723f497e ""
   "images/stack.pdf" 1769162827 63808 893041c7febcd568bfc4003737b27a47 ""
-  "out/task4.aux" 1769168281 4599 8da8c29bc71fcfafb5e895a4ecf3fa1f "latex"
-  "task4.tex" 1769168267 31641 4761ad006205c19b15a35d96643dd8c5 ""
+  "out/task4.aux" 1769271291 3558 634a58e395e83190d948e00219d75573 "latex"
+  "task4.tex" 1769271286 33172 000bd51bcd738c5e6a08f3b74cb19128 ""
   (generated)
   "out/task4.aux"
   "out/task4.dvi"
