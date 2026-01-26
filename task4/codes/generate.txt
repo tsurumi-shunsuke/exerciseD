@@ -1,0 +1,9 @@
+public List<String> generate(Program ast) {
+    emitHeader();
+    ast.accept(this);
+    out.add("\tRET\t\t; ");
+    out.addAll(procOut);
+    emitData();
+    emitFooter();	
+    return out;
+}

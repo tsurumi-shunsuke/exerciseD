@@ -1,0 +1,557 @@
+package enshud.s4.compiler;
+import enshud.ast.*;
+import java.util.*;
+
+public class CodeGenerator implements AstVisitor<Void>{
+	// 出力する内容を保持するリスト
+	private final List<String> out = new ArrayList<>();
+	private List<String> currentOut = out;
+	private final List<String> data = new ArrayList<>();
+	
+    // 文字列定数ラベル割り当て
+    private final Map<String, String> strLabel = new LinkedHashMap<>();
+    private int strId = 0;
+    
+    // 変数オフセット
+    private final Map<String, Integer> varOffset = new LinkedHashMap<>();
+    private int varCount = 0;
+    
+    // 配列の下限（配列でない変数は 0 にしておく）
+    private final Map<String, Integer> arrayLower = new LinkedHashMap<>();
+    
+    // ループ制御
+    private int jumpId = 0;
+    
+    // 手続き制御
+    private final List<String> procOut = new ArrayList<>();
+    private int procId = 0;
+    private final Map<String, String> procLabel = new LinkedHashMap<>();
+
+    // 変数の型を保持する
+    private enum VarKind { INT, CHAR, BOOL}
+    private final Map<String, VarKind> varKind = new LinkedHashMap<>();
+	
+	// 生成を開始する関数．Compilerで最初に呼び出される．
+	public List<String> generate(Program ast) {
+		// 初期化
+		out.clear();
+		data.clear();
+		strLabel.clear();
+		strId = 0;
+		varOffset.clear();
+		arrayLower.clear();
+		varCount = 0;
+		jumpId = 0;
+		procOut.clear();
+		procId = 0;
+		procLabel.clear();
+		varKind.clear();
+		
+		// 本文の生成開始
+		emitHeader();
+		ast.accept(this);
+	   	out.add("\tRET\t\t; ");
+	   	out.addAll(procOut); // 手続き定義をmainの後ろに書く
+		emitData();
+		emitFooter();
+		
+		return out;
+	}
+	
+	private void emitHeader() {
+		out.add("CASL\tSTART\tBEGIN\t; ");
+        out.add("BEGIN\tLAD\tGR6, 0\t; ");
+        out.add("\tLAD\tGR7, LIBBUF\t; ");
+	}
+	
+    private void emitData() {
+        // 変数領域
+        data.add("VAR\tDS\t" + varCount + "\t; ");
+        // 文字列定数
+        for (var e : strLabel.entrySet()) {
+            String name = e.getKey();
+            String label = e.getValue();
+            data.add(label + "\tDC\t'" + name + "'\t; ");
+        }
+        data.add("LIBBUF\tDS\t256\t; ");
+        out.addAll(data);
+    }
+    
+    private void emitFooter() {
+        out.add("\tEND\t\t; ");
+    }
+    
+    // currentOutの指すマップに追加していく関数
+    private void emit(String s) {
+        currentOut.add(s);
+    }
+    
+    // 文字列に対応するラベルを作成し割り当てる
+    private String internStringLabel(String s) {
+    	return strLabel.computeIfAbsent(s, k -> "CHAR" + (strId++));
+    }
+    
+    // 文字列の中身を取り出す
+    private String stripQuotes(String s) {
+        if (s != null && s.length() >= 2 && s.startsWith("'") && s.endsWith("'")) {
+            return s.substring(1, s.length() - 1);
+        }
+        return s;
+    }
+    
+    // 変数のオフセットを取り出す
+    private int lookupOffset(String name) {
+        Integer off = varOffset.get(name);
+        if (off == null) throw new RuntimeException("Undefined var: " + name);
+        return off;
+    }
+
+    // 配列の先頭を取り出す
+    private int lookupLower(String name) {
+        return arrayLower.getOrDefault(name, 0);
+    }
+    
+    // 変数の型を返す関数
+    private VarKind toVarKind(TypeNode t) {
+        if (t instanceof BuiltinType bt) {
+            return switch (bt) {
+                case INTEGER -> VarKind.INT;
+                case CHAR    -> VarKind.CHAR;
+                case BOOLEAN -> VarKind.BOOL;
+            };
+        }
+        if (t instanceof ArrayType at) {
+            BuiltinType elem = at.elem();
+            return switch (elem) {
+                case INTEGER -> VarKind.INT;
+                case CHAR    -> VarKind.CHAR;
+                case BOOLEAN -> VarKind.BOOL;
+            };
+        }
+        throw new UnsupportedOperationException("Unknown TypeNode: " + t.getClass());
+    }
+
+    // 引数の個数を数える関数
+    private int countParams(ProcedureDecl p) {
+        int n = 0;
+        for (Param g : p.params()) n += g.names().size();
+        return n;
+    }
+    
+    
+    private void debag() {
+    	System.out.println("debag!!!!");
+    }
+
+    
+    // ---------
+    //  Visitor
+    // ---------
+    
+    @Override
+    public Void visitProgram(Program node) {
+        if (node.block() != null) node.block().accept(this);
+        if (node.main() != null) node.main().accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitBlock(Block node) {
+        for (VarDecl v : node.vars()) v.accept(this);
+        for (ProcedureDecl p : node.procs()) p.accept(this);
+      
+        return null;
+    }
+
+    @Override
+    public Void visitCompound(Compound node) {
+        for (Stmt s : node.stmts()) s.accept(this);
+        return null;
+    }
+
+    @Override
+    public Void visitVarDecl(VarDecl node) {
+        TypeNode t = node.type();
+        VarKind k = toVarKind(t);
+        
+        // 添え字と純変数を区別して，要素の数だけ領域を確保する
+        for (String name : node.names()) {
+        	varKind.put(name, k); // 変数の名前と型を登録
+        	varOffset.put(name, varCount);
+        	if (t instanceof ArrayType at) {
+        		int lower = (int) at.lower();
+        		int upper = (int) at.upper();
+        		int len = upper - lower + 1;
+        		arrayLower.put(name, lower);
+        		varCount += len;
+        	} else {
+        		arrayLower.put(name, 0);
+        		varCount++;
+        	}
+        }
+        return null;
+    }
+
+	@Override
+	public Void visitProcedureDecl(ProcedureDecl node) {
+	    // 出力先切替
+	    List<String> saved = currentOut;
+	    currentOut = procOut;
+		emit("\t; L" + node.line() + " ProcedureDecl");
+		
+		// スコープ情報を退避
+	    Map<String, Integer> savedOffset = new LinkedHashMap<>(varOffset);
+	    Map<String, VarKind> savedKind   = new LinkedHashMap<>(varKind);
+	    Map<String, Integer> savedLower  = new LinkedHashMap<>(arrayLower);
+		
+		String name = node.name();
+		String label = procLabel.computeIfAbsent(name, n -> "PROC" + (procId++));
+		emit(label + "\tNOP\t\t; ProcedureDecl (" + name + ")");
+		
+		// ローカル変数の分だけスタックポインタGR8をずらす
+		int nLocals = node.locals().stream().mapToInt(vd -> {
+		    return vd.names().size();
+		}).sum();
+		emit("\tLD\tGR1, GR8\t; ProcedureDecl");
+		emit("\tADDA\tGR1, =" + nLocals + " ; ProcedureDecl");
+		
+		for (Param p :node.params()) p.accept(this);
+		int nParams = countParams(node);
+		if (nParams > 0) {
+			emit("\tLD\tGR1, 0, GR8 ; ProcedureDecl");
+			emit("\tADDA\tGR8, =" + nParams + " ; ProcedureDecl");
+			emit("\tST\tGR1, 0, GR8 ; ProcedureDecl");
+		}
+		
+		for (VarDecl local : node.locals()) local.accept(this);
+	    node.body().accept(this);
+	    
+		emit("\tRET\t\t; ProcedureDecl (" + name + ")");
+		
+	    // スコープ情報と出力先を復元
+	    varOffset.clear(); 
+	    varOffset.putAll(savedOffset);
+	    varKind.clear();   
+	    varKind.putAll(savedKind);
+	    arrayLower.clear();
+	    arrayLower.putAll(savedLower);
+		currentOut = saved;
+		return null;
+	}
+
+	@Override
+	public Void visitParam(Param node) {
+        VarKind k = toVarKind(node.type());
+        for (String name : node.names()) {
+        	varKind.put(name, k);
+        	varOffset.put(name, varCount);
+        	arrayLower.put(name, 0);
+        	varCount++;
+        	
+        	emit("\tLD\tGR2, 0, GR1 ; Param (" + name + ")");
+        	emit("\tLD\tGR3, =" + varOffset.get(name) + " ;Param (" + name + ")");
+        	emit("\tST\tGR2, VAR, GR3 ; Param (" + name + ")");
+        	emit("\tSUBA\tGR1, =1; Param (" + name + ")");
+        }
+	    return null;
+	}
+
+	@Override
+	public Void visitAssign(Assign node) {
+		emit("\t; L" + node.line() + " Assign");
+	    node.rhs().accept(this);
+	    LValue lhs = node.lhs();
+	    
+	    if (lhs instanceof Var v) {
+	    	int off = lookupOffset(v.name());
+		    emit("\tLD\tGR2, =" + off + "\t; Assign (Var) (" + v.name() + ")");
+		    emit("\tPOP\tGR1\t; Assign (Var)");
+		    emit("\tST\tGR1, VAR, GR2\t; Assign (Var)");
+		    return null;
+	    }
+	    
+	    if (lhs instanceof ArrayAccess a) {
+	        int base = lookupOffset(a.name());
+	        int lower = lookupLower(a.name());
+
+	        a.index().accept(this);
+	        emit("\tPOP\tGR2\t; Assign (ArrayAccess)");
+	        emit("\tADDA\tGR2, =0\t; Assign (ArrayAccess)");
+	        emit("\tPOP\tGR1\t; Assign (ArrayAccess)");
+	        emit("\tST\tGR1, VAR, GR2\t; Assign (ArrayAccess)");
+	        return null;
+	    }
+
+	    throw new UnsupportedOperationException("Unsupported LHS in assign: " + lhs.getClass().getName());
+	    
+	}
+
+	@Override
+	public Void visitProcCall(ProcCall node) {
+		String name = node.name();
+		String label = procLabel.get(name);
+		
+		for (Expr a : node.args()) a.accept(this);
+		
+	    emit("\tCALL\t" + label + "\t; ProcCall (" + name + ")");
+	    
+		return null;
+	}
+
+	@Override
+	public Void visitReadln(Readln node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+    @Override
+    public Void visitWriteln(Writeln node) {
+    	emit("\t; L" + node.line() + " writeln");
+        for (Expr ex : node.exprs()) {
+            if (ex instanceof Literal lit && lit.kind() == LitKind.STRING) {
+                String raw = stripQuotes(lit.lexeme());
+                int len = raw.length();
+                ex.accept(this);
+
+                if (len == 1) {
+                    // CHARは,visitLiteral 1ワード(PUSH 0, GR1)
+                    emit("\tPOP\tGR2\t; writeln (char literal)");
+                    emit("\tCALL\tWRTCH\t; writeln");
+                } else {
+                    // STRINGは,visitLiteral len, addr の2ワード
+                    emit("\tPOP\tGR2\t; writeln (string literal)");
+                    emit("\tPOP\tGR1\t; writeln (string literal)");
+                    emit("\tCALL\tWRTSTR\t; writeln");
+                }
+            } else {
+            	// それ以外は1ワード（INT, CHAR）
+            	VarKind k = null;
+            	if (ex instanceof VarRef vr) k = varKind.get(vr.name());
+            	if (ex instanceof ArrayRef ar) k = varKind.get(ar.name());
+            	
+            	ex.accept(this);
+                emit("\tPOP\tGR2\t; writeln");
+                
+                if (k == VarKind.CHAR) {
+                    emit("\tCALL\tWRTCH\t; writeln");
+                } else if (k == VarKind.INT) {
+                    emit("\tCALL\tWRTINT\t; writeln");
+                }
+            }
+        }
+        emit("\tCALL\tWRTLN\t; writeln");
+        return null;
+    }
+
+	@Override
+	public Void visitIfS(IfS node) {
+		out.add("\t; L" + node.line() + " if");
+	    String e  = "ELSE" + jumpId;
+	    String t  = "TRUE" + jumpId;
+	    String both  = "BOTH" + jumpId;
+	    String end  = "ENDIF" + jumpId;
+	    jumpId++;
+	    
+	    node.cond().accept(this); // 条件式の計算
+	    emit("\tJZE\t" + t + "\t; if");
+	    emit("\tLD\tGR1, =#0000\t; if");
+	    emit("\tJUMP\t" + both + "\t; if");
+	    
+	    emit(t + "\tNOP\t\t; if");
+	    emit("\tLD\tGR1, =#FFFF\t; if");
+	    
+	    emit(both + "\tNOP\t\t; if");
+	    emit("\tPUSH\t0, GR1\t; if");
+	    emit("\tPOP\tGR1\t; if");
+	    emit("\tCPA\tGR1, =#0000\t; if");
+	    if (node.elseC() != null) emit("\tJZE\t" + e + "\t; if");
+	    
+	    node.thenC().accept(this); // 本文の計算
+	    emit("\tJUMP\t" + end + "\t; if");
+	    
+	    if (node.elseC() != null) {  // else文の計算
+	    	emit(e + "\tNOP\t\t; if");
+	    	node.elseC().accept(this);
+	    }
+	    
+	    emit(end + "\tNOP\t\t; if");
+	    
+		return null;
+	}
+
+	@Override
+	public Void visitWhileS(WhileS node) {
+		emit("\t; L" + node.line() + " while");
+	    String loop = "LOOP" + jumpId;
+	    String end  = "ENDLP" + jumpId;
+	    String t  = "TRUE" + jumpId;
+	    String both  = "BOTH" + jumpId;
+	    jumpId++;
+	    
+	    emit(loop + "\tNOP\t\t; while");
+		node.cond().accept(this); // 条件式の計算
+		
+	    emit("\tJMI\t" + t + "\t; while");
+	    emit("\tJZE\t" + t + "\t; while");
+	    emit("\tLD\tGR1, =#0000\t; while");
+	    emit("\tJUMP\t" + both + "\t; while");
+	    
+	    emit(t + "\tNOP\t\t; while");
+	    emit("\tLD\tGR1, =#FFFF\t; while");
+	    
+	    emit(both + "\tNOP\t\t; while");
+	    emit("\tPUSH\t0, GR1\t; while");
+	    emit("\tPOP\tGR1\t; while");
+	    emit("\tCPL\tGR1, =#0000\t; while");
+	    emit("\tJZE\t" + end + "\t; while");
+	    
+	    node.body().accept(this); // 本文の計算
+
+	    emit("\tJUMP\t" + loop + "\t; while"); // ループ先頭へ
+	    emit(end + "\tNOP\t\t; while");
+		
+		return null;
+	}
+
+	@Override
+	public Void visitVar(Var node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void visitArrayAccess(ArrayAccess node) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Void visitBinary(Binary node) {
+		node.left().accept(this);
+		node.right().accept(this);
+		
+		switch (node.op()) {
+			case ADD -> {
+				emit("\tPOP\tGR2\t; Binary(ADD)");
+				emit("\tPOP\tGR1\t; Binary(ADD)");
+				emit("\tADDA\tGR1, GR2\t; Binary(ADD)");
+				emit("\tPUSH\t0, GR1\t; Binary(ADD)");
+			}
+			case SUB -> {
+				emit("\tPOP\tGR2\t; Binary(SUB)");
+				emit("\tPOP\tGR1\t; Binary(SUB)");
+			    emit("\tSUBA\tGR1, GR2\t; Binary(SUB)");
+				emit("\tPUSH\t0, GR1\t; Binary(SUB)");
+			}
+			case MUL -> {
+				emit("\tPOP\tGR2\t; Binary(MUL)");
+				emit("\tPOP\tGR1\t; Binary(MUL)");
+				emit("\tCALL\tMULT\t; Binary(MUL)");
+				emit("\tPUSH\t0, GR2\t; Binary(MUL)");
+			}
+			case DIV -> {
+				emit("\tPOP\tGR2\t; Binary(DIV)");
+				emit("\tPOP\tGR1\t; Binary(DIV)");
+				emit("\tCALL\tDIV\t; Binary(DIV)");
+				emit("\tPUSH\t0, GR2\t; Binary(DIV)");
+				emit("\tPUSH\t0, GR1\t; Binary(DIV)");
+			}
+			case MOD -> {
+				
+			}
+			
+			case EQ -> {
+				emit("\tPOP\tGR2\t; Binary\t (EQ)");
+				emit("\tPOP\tGR1\t; Binary (EQ)");
+				emit("\tCPL\tGR1, GR2\t; Binary (EQ)");	
+			}
+			
+			case LE, LT -> {
+				emit("\tPOP\tGR2\t; Binary\t (LE or LT)");
+				emit("\tPOP\tGR1\t; Binary (LE or LT)");
+				emit("\tCPA\tGR1, GR2\t; Binary (LE or LT)");
+			}
+			
+	        default -> throw new UnsupportedOperationException("Unsupported binary op: " + node.op());
+			
+		}
+
+		return null;
+	}
+
+	@Override
+	public Void visitUnary(Unary node) {
+		node.expr().accept(this);
+		
+		switch (node.op()) {
+			case NOT -> {
+	            emit("\tPOP\tGR1\t; Unary (NOT)");
+	            emit("\tXOR\tGR1, =#FFFF\t; Unary (NOT)");
+	            emit("\tPUSH\t0, GR1\t; Unary (NOT)");
+			}
+			
+	        default -> throw new UnsupportedOperationException("Unsupported unary op: " + node.op());
+		}
+		
+		return null;
+	}
+
+	@Override
+	public Void visitLiteral(Literal node) {
+	    return switch (node.kind()) {
+	   	    case INT -> {
+	   	    	emit("\tPUSH\t" + node.lexeme() + "\t; Literal (INT) (" + node.lexeme() + ")");
+	   		    yield null;
+	        }
+	        case STRING -> {
+	            String lex = node.lexeme();
+	            String raw = stripQuotes(lex);
+  	            int len = raw.length();
+	            
+  	            // 1文字の時CHARとして処理
+	            if (len == 1) {
+		            emit("\tLD\tGR1, =" + lex + "\t; Literal (CHAR) (" + lex + ")");
+		            emit("\tPUSH\t0, GR1\t; Literal (CHAR)");
+		            yield null;
+	            }
+
+	            String label = internStringLabel(raw); // DC領域の確保
+	            emit("\tLD\tGR1, =" + len + "\t; Literal (STRING) (" + lex + ")");
+	            emit("\tPUSH\t0, GR1\t; Literal (STRING)");
+	            emit("\tLAD\tGR2, " + label + "\t; Literal (STRING)");
+	            emit("\tPUSH\t0, GR2\t; Literal (STRING)");
+	            yield null;
+	        }
+	        case BOOL -> {
+	            boolean b = node.lexeme().equalsIgnoreCase("true");
+	            emit("\tPUSH\t" + (b ? "#FFFF" : "#0000") + "\t; Literal (BOOL)");
+	        	yield null;
+	        }
+	        default -> throw new UnsupportedOperationException("INT/STRING only");
+	    };
+	}
+
+	@Override
+	public Void visitVarRef(VarRef node) {
+	    int off = lookupOffset(node.name());
+	    emit("\tLD\tGR2, =" + off + "\t; VarRef (" + node.name() + ")");
+	    emit("\tLD\tGR1, VAR, GR2\t; VarRef");
+	    emit("\tPUSH\t0, GR1\t; VarRef");
+	    return null;
+	}
+
+	@Override
+	public Void visitArrayRef(ArrayRef node) {
+	    int base = lookupOffset(node.name());
+	    int lower = lookupLower(node.name());
+	    int k = base - lower;
+
+	    node.index().accept(this); // 配列の番号をPUSH
+	    emit("\tPOP\tGR2\t; ArrayRef");
+	    emit("\tADDA\tGR2, =" + k + "\t; ArrayRef");
+	    emit("\tLD\tGR1, VAR, GR2\t; ArrayRef");
+	    emit("\tPUSH\t0, GR1\t; ArrayRef");
+	    return null;
+	}
+
+}

@@ -1,0 +1,7 @@
+public Void visitVar(Var node) {
+    int off = lookupOffset(node.name());
+    emit("\tLD\tGR2, =" + off + "\t; Var (" + node.name() + ")");
+    emit("\tPOP\tGR1\t; Var");
+    emit("\tST\tGR1, VAR, GR2\t; Var");
+    return null;
+}

@@ -1,0 +1,19 @@
+public Void visitProcedureDecl(ProcedureDecl node) {
+    List<String> savedOut = currentOut;  // 退避
+    currentOut = procOut;  // 出力先切り替え
+
+    Map<String,Integer> savedOffset = new LinkedHashMap<>(varOffset);
+    Map<String,VarKind> savedKind   = new LinkedHashMap<>(varKind);
+    Map<String,Integer> savedLower  = new LinkedHashMap<>(arrayLower);
+
+    String label = procLabel.computeIfAbsent(name, n -> "PROC" + (procId++));
+    emit(label + "\tNOP\t\t; ProcedureDecl (" + name + ")");  // PROC<i> NOP
+    /* ... locals/params を登録して本体を生成 ... */
+
+    varOffset.clear();  varOffset.putAll(savedOffset);  // 復元
+    varKind.clear();    varKind.putAll(savedKind);
+    arrayLower.clear(); arrayLower.putAll(savedLower);
+    
+    currentOut = savedOut;
+    return null;
+}

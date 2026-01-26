@@ -1,0 +1,31 @@
+package enshud.ast;
+
+/** 代入左辺の純変数 */
+public final class Var implements LValue {
+    private final String name;
+    private final int line;
+
+    private int offset = -1;
+    private TypeNode resolvedType = null;
+
+    public Var(String name, int line) {
+        this.name = name;
+        this.line = line;
+    }
+
+    public String name() { return name; }
+    public int line() { return line; }
+
+    public void bind(int offset, TypeNode type) {
+        this.offset = offset;
+        this.resolvedType = type;
+    }
+
+    public int offset() { return offset; }
+    public TypeNode resolvedType() { return resolvedType; }
+
+    @Override
+    public <R> R accept(AstVisitor<R> v) {
+        return v.visitVar(this);
+    }
+}

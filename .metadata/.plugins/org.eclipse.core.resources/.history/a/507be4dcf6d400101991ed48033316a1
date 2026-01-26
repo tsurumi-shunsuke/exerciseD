@@ -1,5 +1,0 @@
-package enshud.ast;
-
-public interface AstVisitor {
-
-}

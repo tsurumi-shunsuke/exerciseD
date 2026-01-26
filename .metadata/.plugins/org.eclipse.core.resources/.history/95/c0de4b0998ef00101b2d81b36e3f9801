@@ -1,0 +1,9 @@
+package enshud.s4.compiler;
+
+public class varInfo {
+
+	public varInfo() {
+		// TODO Auto-generated constructor stub
+	}
+
+}

@@ -1,0 +1,23 @@
+package enshud.ast;
+
+import enshud.s3.checker.Symbol;
+
+public final class VarRef implements Expr {
+    private final String name;
+    private final int line;
+    private Symbol sym; // Checker が埋める
+
+    public VarRef(String name, int line) {
+        this.name = name;
+        this.line = line;
+    }
+
+    public String name() { return name; }
+    public int line() { return line; }
+
+    public void bind(Symbol s) { this.sym = s; }
+    public Symbol sym() { return sym; }
+
+    @Override
+    public <R> R accept(AstVisitor<R> v) { return v.visitVarRef(this); }
+}
